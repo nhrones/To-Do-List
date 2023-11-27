@@ -4,7 +4,7 @@
    position: relative;
    display: inline-block;
    vertical-align: middle;
-   margin: 10px; /* demo only */
+   margin: 10px;
  }
   
  .custom-dropdown select {
@@ -27,7 +27,8 @@
    pointer-events: none;
  }
  
- .custom-dropdown::after { /*  Custom dropdown arrow */
+  /* Custom dropdown arrow */
+ .custom-dropdown::after {
    content: "\25BC";
    height: 1em;
    font-size: .625em;
@@ -37,7 +38,8 @@
    margin-top: -.5em;
  }
  
- .custom-dropdown::before { /*  Custom dropdown arrow cover */
+ /* Custom dropdown arrow cover */
+ .custom-dropdown::before { 
    width: 2em;
    right: 0;
    top: 0;

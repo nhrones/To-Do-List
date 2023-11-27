@@ -7,10 +7,9 @@ export const $ = (id) => document.getElementById(id)
 
 /**
  * on - adds an event handler to an htmlElement
- * @param {*} el the element to add the listener to 
- * @param {*} event The event name to handle
- * @param {*} calback The event handler callback function
+ * @param {HTMLElement} el the element to add the listener to 
+ * @param {string} event The event name to handle
+ * @param {function} calback The event handler callback function
  * @returns void  
  */
 export const on = (el, event, callback) => el.addEventListener(event, callback)
- 

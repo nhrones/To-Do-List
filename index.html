@@ -15,23 +15,10 @@
 <body>
    <section class="todo">
 
-      <div class="custom-dropdown">
-         <select name="topics" id="topics">
-            <option value="">Select A Todo Topic</option>
-            <optgroup label="Bueno"></optgroup>
-               <option value="bueno-cache">Bueno-Cache Todos</option>
-               <option value="bueno-KV">Bueno-KV Todos</option>
-            </optgroup>
-            <optgroup label="Codecs"></optgroup>
-               <option value="key-codec">Key-Codec Todos</option>
-               <option value="value-codec">Value-Codec Todos</option>
-            </optgroup>
-            <optgroup label="Other"></optgroup>
-               <option value="reactive-ui">DWM-ReactiveUI Todos</option>
-               <option value="todo-app">This Todo App</option>
-               <option value="topics">Todo App Topic Array</option>
-            </optgroup>
-         </select>
+      <div id="selwrap" class="custom-dropdown">
+         <select id="topics">
+           <option value="" disabled selected hidden>Select A Todo Topic</option>
+         </select> 
          <button onclick="self.close()"> X </button>
       </div>
       <div class="input">

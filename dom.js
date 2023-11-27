@@ -1,16 +1,18 @@
 import { addTask, refreshDisplay } from './tasks.js'
-import { deleteCompleted, getAll } from './persist.js';
+import { buildTopics, deleteCompleted, getAll } from './db.js';
 import { $, on } from './utils.js'
- 
+
 export const todoInput = $("todoInput");
 export const todoCount = $("todoCount");
 export const todoList = $("todoList");
 export const deleteCompletedBtn = $("deletecompleted");
+export const topicSelect = $('topics');
 
 let topic
 
-/** initialize DOM and store */
 export function init(topic) {
+
+   buildTopics(true)
 
    getAll(topic)
 
@@ -25,6 +27,12 @@ export function init(topic) {
       deleteCompleted()
       refreshDisplay();
    });
+
+   on(topicSelect, 'change', (e) => {
+      topic = topicSelect.value.toLowerCase() 
+      getAll(topic)
+      refreshDisplay();
+   }) 
 
    refreshDisplay();
 }

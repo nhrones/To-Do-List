@@ -1,6 +1,6 @@
 import { on } from './utils.js'
 import { todoInput } from './dom.js'
-import { tasks, saveAll } from './persist.js';
+import { tasks, saveAll } from './db.js';
 import { taskTemplate } from './templates.js'
 
 /**
@@ -22,18 +22,20 @@ export function addTask() {
  */
 export function refreshDisplay() {
    todoList.innerHTML = "";
+   console.info('refreshDisplay ', tasks)
+   
    tasks.forEach((item, index) => {
       const p = document.createElement("p");
       p.innerHTML = taskTemplate(index, item)
 
       on(p, 'click', (e) => {
          console.log('e.target.type: ', e.target.type)
-         // let the checkbox-change handler below work
+         // lets the checkbox-change handler below work
          if (e.target.type === 'checkbox') return;
-         // let the checkbox-change handler below work
+         // ignore all `textarea` elements
          if (e.target.type === 'textarea') return;
 
-         const todoItem = e.target; // p element
+         const todoItem = e.target;
          const existingText = tasks[index].text;
  
          const editElement = document.createElement("textarea");
@@ -55,6 +57,7 @@ export function refreshDisplay() {
          });
       })
 
+      // handle the `completed` checkbox change event
       on(p.querySelector(".todo-checkbox"), "change", (e) => {
          e.preventDefault()
          const index = e.target.dataset.index
@@ -65,6 +68,7 @@ export function refreshDisplay() {
       todoList.appendChild(p);
    });
 
+   // update the task count
    todoCount.textContent = tasks.length;
 }
 

@@ -1,5 +1,7 @@
 
-/** returns a collapsed tree element */
+/** 
+ * returns a task element template
+ */
 export function taskTemplate(index, item) {
    const { disabled, text } = item
    return `
