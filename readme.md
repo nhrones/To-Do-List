@@ -1,4 +1,4 @@
-## TODO App
+## Todo List App
 
 This simple app allows me to organize Todo-Tasks by subject and project.    
 I've used a simple selectBox to select a project.    
