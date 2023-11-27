@@ -42,8 +42,9 @@ This version uses localStorage.  I'll be _Deploying_ a version for DenoKv.
 If something breaks, you can delete the localStorage file, and a blank template will auto install on next start.     
 See: ./selections.js/
 
-I started this project as a DWM-ReactiveUI app.  I liked it so much, that I spent time    
-creating this HTML version.  I liked the look and feel of my Desktop version
-This html version was very difficult as I have limited CSS experience.    
+## Deno Desktop App
+I started this project as a DWM-ReactiveUI app.     
+I liked the look-and-feel of my Deno-Desktop version so much, that I spent time creating this HTML version.   
+Building this HTML version was very difficult for me as I have limited CSS experience.    
 
 ## Have Fun! Make a copy and clean up my clumsy code.
