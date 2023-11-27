@@ -9,14 +9,29 @@ Clicking on a task, allows you to edit the text in a multi-line TextArea element
 
 ![Alt text](./media/rui.png)
 
+## Tasks
+To add a task, just type in the textInput and press enter.    
+To edit a task, just click on it.     
+An editable multiline TextArea will allow in place edits.    
+All edits are auto-saved on 'blur'.
+
+![Alt text](edit.png)
+
 Each task has a `completed` checkBox.    
-When one or more tasks are `Checked`, a button on the bottom-right will delete them all.    
+The `Delete Completed` button on the bottom-right will delete any checked tasks.    
+
+<br/>
+
+## Todo Topics
+The dropdown box shows all current option groups and todo topics.    
+These are configurable by the user; see below.    
+The image above shows the Other-DWM-ReactiveUI topic selected with it's current task list.    
 
 ![Alt text](./media/select.png)
 
 <br/>
 
-## Todo Topics
+## Configurable Topics
 Note, the `Topic-Select-List` is configurable directly in the app. Just select `Todo App Topics`        
 in the drop-down, and then click on the json-text to edit it. Changes will show on tab refresh.   
 
@@ -27,7 +42,7 @@ This version uses localStorage.  I'll be _Deploying_ a version for DenoKv.
 If something breaks, you can delete the localStorage file, and a blank template will auto install on next start. See: ./selections.js/
 
 I started this project as a DWM-ReactiveUI app.  I liked it so much, that I spent time    
-creating this HTML version.  It was very difficult with my limited CSS experience to get   
-the same look-and-feel as the deno-desktop version.
+creating this HTML version.  I liked the look and feel of my Desktop version
+This html version was very difficult as I have limited CSS experience.    
 
-Have Fun
+## Have Fun! Make a copy and clean up my clumsy code.
