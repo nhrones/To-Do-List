@@ -25,7 +25,7 @@ The `Delete Completed` button on the bottom-right will delete any checked tasks.
 ## Todo Topics
 The dropdown box shows all current option groups and todo topics.    
 These are configurable by the user; see below.    
-The image above shows the Other-DWM-ReactiveUI topic selected with it's current task list.    
+The image above shows the `DWM-ReactiveUI` topic selected with it's current task list.    
 
 ![Alt text](./media/select.png)
 
