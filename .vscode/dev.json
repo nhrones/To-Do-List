@@ -1,6 +1,6 @@
 {
    "simple": {
       "TargetFolder": "",
-      "Port": 80
+      "Port": 8080
    }
 }

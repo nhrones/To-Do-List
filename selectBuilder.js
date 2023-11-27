@@ -26,11 +26,9 @@ function addOptgroup(selectElement, label, options) {
 
 /** 
  * Build the select.
- * @wrap: Container where to add finished product.
- * @size: Size attribute for select.
  * @opt : Options object.
  */
-export function buildSselect(opt) {
+export function buildSelect(opt) {
    const selectElement = $("topics") 
    let prop;
    selectElement.size = 0;
