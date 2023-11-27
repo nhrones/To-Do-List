@@ -36,7 +36,7 @@ export function init(topic) {
    }) 
 
    on(closebtn, 'click', (e) => {
-      console.log(`clocebtn ${location.href}`)
+      console.log(`closebtn ${location.href}`)
       window.open(location.href, "_self", "");
       window.close()
    })
