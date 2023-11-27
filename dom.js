@@ -1,7 +1,9 @@
 import { addTask, refreshDisplay } from './tasks.js'
 import { buildTopics, deleteCompleted, getAll } from './db.js';
+import { exportData } from './export.js'
 import { $, on } from './utils.js'
 
+export const backupbtn = $("backupbtn");
 export const todoInput = $("todoInput");
 export const todoCount = $("todoCount");
 export const todoList = $("todoList");
@@ -39,6 +41,10 @@ export function init(topic) {
       console.log(`closebtn ${location.href}`)
       window.open(location.href, "_self", "");
       window.close()
+   })
+
+   on(backupbtn, 'click', (e) => {
+      exportData()
    })
 
    refreshDisplay();

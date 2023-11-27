@@ -12,7 +12,7 @@ let storeName = 'topics'
 export const getAll = (topic = "") => {
    storeName = topic
    tasks = JSON.parse(localStorage.getItem(topic)) || [];
-   console.info(`getAll tasks for ${topic} `, tasks)
+   //console.info(`getAll tasks for ${topic} `, tasks)
 }
 
 export const buildTopics = () => {
@@ -25,15 +25,15 @@ export const buildTopics = () => {
       raw = localStorage.getItem("topics")
    }
 
-   console.info('raw', raw)
+   //console.info('raw', raw)
    const parsedTopics = JSON.parse(raw)
-   console.info('parsedTopics ', parsedTopics)
-   console.log(JSON.parse(parsedTopics[0].text))
+   //console.info('parsedTopics ', parsedTopics)
+   //console.log(JSON.parse(parsedTopics[0].text))
    for (let index = 0; index < parsedTopics.length; index++) {
       const element = parsedTopics[index];
-      console.info(`element `,element)
+      //console.info(`element `,element)
       const t = JSON.parse(`${parsedTopics[index].text}`)
-      console.info('parsedTopics[0].text ', t)
+      //console.info('parsedTopics[0].text ', t)
       buildSelect(t)
    }
 }
