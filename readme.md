@@ -20,6 +20,6 @@ This version uses LocalStorage.  I'll be _Deploying_ a version for DenoKv.
 
 I started this project as a DWM-ReactiveUI app.  I liked it so much, that I spent time    
 creating this HTML version.  It was very difficult with my limited CSS experience to get   
-the same look-and-feel as the deno-desktop version.
+the same look-and-feel as the deno-desktop version (pictured above).
 
 Have Fun
