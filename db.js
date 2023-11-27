@@ -1,5 +1,5 @@
 import { buildSselect } from './selectBuilder.js'
-import { selections } from './selections.js'
+import { baseSelections, selections } from './selections.js'
 
 export let tasks = []
 
@@ -17,9 +17,13 @@ export const getAll = (topic = "") => {
 
 export const buildTopics = () => {
 
-   localStorage.setItem("topics", JSON.stringify(selections));
+   //localStorage.setItem("topics", JSON.stringify(selections));
 
-   const raw = localStorage.getItem("topics")
+   let raw = localStorage.getItem("topics")
+   if (raw === null) {
+      localStorage.setItem("topics", JSON.stringify(baseSelections));
+      raw = localStorage.getItem("topics")
+   }
    const parsedTopics = JSON.parse(raw)
    console.info('parsedTopics[0] ', parsedTopics[0].text)
    buildSselect(JSON.parse(parsedTopics[0].text))

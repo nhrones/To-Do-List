@@ -16,3 +16,13 @@ export const selections =  [{ text: `{
       { "name": "Todo App Topics", "value": "topics" }
    ]}`
 }]
+
+/** 
+ * base selection element builder 
+ */
+export const baseSelections =  [{ text: `{
+   "Other": [
+      { "name": "This Todo App", "value": "todo-app" },
+      { "name": "Todo App Topics", "value": "topics" }
+   ]}`
+}]
