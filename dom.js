@@ -7,6 +7,7 @@ export const todoCount = $("todoCount");
 export const todoList = $("todoList");
 export const deleteCompletedBtn = $("deletecompleted");
 export const topicSelect = $('topics');
+export const closebtn = $('closebtn')
 
 let topic
 
@@ -33,6 +34,12 @@ export function init(topic) {
       getAll(topic)
       refreshDisplay();
    }) 
+
+   on(closebtn, 'click', (e) => {
+      console.log(`clocebtn ${location.href}`)
+      window.open(location.href, "_self", "");
+      window.close()
+   })
 
    refreshDisplay();
 }

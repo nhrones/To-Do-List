@@ -12,7 +12,6 @@ let storeName = 'topics'
 export const getAll = (topic = "") => {
    storeName = topic
    tasks = JSON.parse(localStorage.getItem(topic)) || [];
-   console.log('tasks ', tasks)
 }
 
 export const buildTopics = () => {
@@ -25,7 +24,6 @@ export const buildTopics = () => {
       raw = localStorage.getItem("topics")
    }
    const parsedTopics = JSON.parse(raw)
-   console.info('parsedTopics[0] ', parsedTopics[0].text)
    buildSselect(JSON.parse(parsedTopics[0].text))
 }
 
@@ -33,7 +31,6 @@ export const buildTopics = () => {
  * Save all tasks to local storage
  */
 export function saveAll() {
-   console.log(`storing tasks for key ${storeName} `, tasks)
    localStorage.setItem(storeName, JSON.stringify(tasks, null, 2));
 }
 

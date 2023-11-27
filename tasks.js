@@ -22,14 +22,12 @@ export function addTask() {
  */
 export function refreshDisplay() {
    todoList.innerHTML = "";
-   console.info('refreshDisplay ', tasks)
    
    tasks.forEach((item, index) => {
       const p = document.createElement("p");
       p.innerHTML = taskTemplate(index, item)
 
       on(p, 'click', (e) => {
-         console.log('e.target.type: ', e.target.type)
          // lets the checkbox-change handler below work
          if (e.target.type === 'checkbox') return;
          // ignore all `textarea` elements
