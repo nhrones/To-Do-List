@@ -7,6 +7,9 @@ Clicking on a task, allows you to edit the text in a multi-line TextArea element
 
 ### Try it:  https://nhrones.github.io/To-Do-List/
 
+
+<br/>
+
 ![Alt text](./media/rui.png)
 
 ## Tasks
