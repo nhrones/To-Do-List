@@ -2,40 +2,38 @@
 import { $ } from './utils.js'
 
 /** 
- * Build option group.
- * @sel : Select element to add group to.
- * @lab : Label for option group.
- * @opts: Options Array.
+ * Build the select.
+ * @param {*}  Options object.
  */
-function addOptgroup(selectElement, label, options) {
+export function buildSelect(opt) {
+   const selectElement = $("topics") 
+   let prop;
+   //selectElement.size = 0;
+   //selectElement.id = "topics"
+   for (prop in opt) {
+      if (opt.hasOwnProperty(prop)) {
+         addOptionGroup(selectElement, prop, opt[prop]);
+      }
+   }
+}
 
+/** 
+ * Build selectTag option group.
+ * @param {*} selectElement select element to add a group to.
+ * @param {*} label Label for option group.
+ * @param {*} options Array of optionElement properties.
+ */
+function addOptionGroup(selectElement, label, options) {
    let len = options.length
    let optionElement
-   let optionGroup = document.createElement('OPTGROUP')
-
+   let optionGroup = document.createElement('optgroup')
    optionGroup.label = label;
    for (let i = 0; i < len; ++i) {
-      optionElement = document.createElement('OPTION');
+      optionElement = document.createElement('option');
       optionElement.textContent = options[i].name;
       optionElement.value = options[i].value;
       optionGroup.appendChild(optionElement);
    }
    selectElement.appendChild(optionGroup);
    return optionGroup;
-}
-
-/** 
- * Build the select.
- * @opt : Options object.
- */
-export function buildSelect(opt) {
-   const selectElement = $("topics") 
-   let prop;
-   selectElement.size = 0;
-   selectElement.id = "topics"
-   for (prop in opt) {
-      if (opt.hasOwnProperty(prop)) {
-         addOptgroup(selectElement, prop, opt[prop]);
-      }
-   }
 }
