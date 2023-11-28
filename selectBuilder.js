@@ -2,17 +2,15 @@
 import { $ } from './utils.js'
 
 /** 
- * Build the select.
+ * Build the select element.
  * @param {*}  Options object.
+ * @returns void
  */
-export function buildSelect(opt) {
+export function buildSelectElement(options) {
    const selectElement = $("topics") 
-   let prop;
-   //selectElement.size = 0;
-   //selectElement.id = "topics"
-   for (prop in opt) {
-      if (opt.hasOwnProperty(prop)) {
-         addOptionGroup(selectElement, prop, opt[prop]);
+   for (const prop in options) {
+      if (options.hasOwnProperty(prop)) {
+         addOptionGroup(selectElement, prop, options[prop]);
       }
    }
 }
@@ -22,6 +20,7 @@ export function buildSelect(opt) {
  * @param {*} selectElement select element to add a group to.
  * @param {*} label Label for option group.
  * @param {*} options Array of optionElement properties.
+ * @returns an HTMLOptGroupElement
  */
 function addOptionGroup(selectElement, label, options) {
    let len = options.length

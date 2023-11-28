@@ -1,6 +1,9 @@
 
 /** 
- * returns a task element template
+ * build a task element template string
+ * @param {number} index an index used in id 
+ * @param {object} item the task item
+ * @returns {string} a task element template
  */
 export function taskTemplate(index, item) {
    const { disabled, text } = item

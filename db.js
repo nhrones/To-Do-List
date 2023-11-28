@@ -1,20 +1,25 @@
-import { buildSelect } from './selectBuilder.js'
+import { buildSelectElement } from './selectBuilder.js'
 import { baseSelections, selections } from './selections.js'
 
+/** an array of todo tasks to be presented */
 export let tasks = []
 
-let storeName = 'topics'
+/** the name of a data-key */
+let keyName = 'topics'
 
-/** 
- * Retrieve tasks from local storage 
- * or initialize an empty array 
+/**
+ * Retrieve array of tasks from local storage     
+ * or initialize an empty task array 
+ * @param {string} key the name of the record to fetch (data-key)
  */
-export const getAll = (topic = "") => {
-   storeName = topic
-   tasks = JSON.parse(localStorage.getItem(topic)) || [];
-   //console.info(`getAll tasks for ${topic} `, tasks)
+export const getAllTasks = (key = "") => {
+   keyName = key
+   tasks = JSON.parse(localStorage.getItem(key)) || [];
 }
 
+/**
+ * build a set of select options
+ */
 export const buildTopics = () => {
 
    //localStorage.setItem("topics", JSON.stringify(selections));
@@ -25,24 +30,19 @@ export const buildTopics = () => {
       raw = localStorage.getItem("topics")
    }
 
-   //console.info('raw', raw)
    const parsedTopics = JSON.parse(raw)
-   //console.info('parsedTopics ', parsedTopics)
-   //console.log(JSON.parse(parsedTopics[0].text))
    for (let index = 0; index < parsedTopics.length; index++) {
       const element = parsedTopics[index];
-      //console.info(`element `,element)
-      const t = JSON.parse(`${parsedTopics[index].text}`)
-      //console.info('parsedTopics[0].text ', t)
-      buildSelect(t)
+      const options = JSON.parse(`${parsedTopics[index].text}`)
+      buildSelectElement(options)
    }
 }
 
 /**
  * Save all tasks to local storage
  */
-export function saveAll() {
-   localStorage.setItem(storeName, JSON.stringify(tasks, null, 2));
+export function saveTasks() {
+   localStorage.setItem(keyName, JSON.stringify(tasks, null, 2));
 }
 
 /** 
@@ -54,5 +54,5 @@ export function deleteCompleted() {
       if (task.disabled === false) savedtasks.push(task)
    })
    tasks = savedtasks
-   saveAll()
+   saveTasks()
 }

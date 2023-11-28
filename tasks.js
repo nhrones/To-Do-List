@@ -1,16 +1,17 @@
 import { on } from './utils.js'
 import { todoInput } from './dom.js'
-import { tasks, saveAll } from './db.js';
+import { tasks, saveTasks } from './db.js';
 import { taskTemplate } from './templates.js'
 
 /**
  * Add a new task
+ * @returns void
  */
 export function addTask() {
    const newTask = todoInput.value.trim();
    if (newTask !== "") {
       tasks.push({ text: newTask, disabled: false });
-      saveAll()
+      saveTasks()
       todoInput.value = "";
       todoInput.focus();
       refreshDisplay();
@@ -19,6 +20,7 @@ export function addTask() {
 
 /**
  * Display all tasks
+ * @returns void
  */
 export function refreshDisplay() {
    todoList.innerHTML = "";
@@ -49,7 +51,7 @@ export function refreshDisplay() {
             const updatedText = editElement.value.trim();
             if (updatedText.length > 0) {
                tasks[index].text = updatedText;
-               saveAll()
+               saveTasks()
             }
             refreshDisplay();
          });
@@ -60,7 +62,7 @@ export function refreshDisplay() {
          e.preventDefault()
          const index = e.target.dataset.index
          tasks[index].disabled = !tasks[index].disabled;
-         saveAll()
+         saveTasks()
          refreshDisplay();
       });
       todoList.appendChild(p);

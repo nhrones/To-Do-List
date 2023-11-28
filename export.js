@@ -2,6 +2,7 @@ import { saveDataFile } from './utils.js'
 
 /**
  * export data from localStorage
+ * @returns void - calls saveDataFile()
  */
 export function exportData() {
    const data = Object.assign({}, localStorage)
@@ -13,15 +14,21 @@ export function exportData() {
    saveDataFile('data-dump.txt', content)
 }
 
-function formatData(val, element) {
-   const parsedVal = JSON.parse(val)
-   const len = parsedVal.length
-   let dump = `
+/**
+ * format k/v record for export
+ * @param {string} jsonValue 
+ * @param {string} element 
+ * @returns a formated string 
+ */
+function formatData(jsonValue, element) {
+   const parsedValue = JSON.parse(jsonValue)
+   const len = parsedValue.length
+   let dataString = `
 ${element}:`
    for (let i = 0; i < len; i++) {
-      dump += `
-   ${JSON.parse(val)[i].text}`
+      dataString += `
+   ${JSON.parse(jsonValue)[i].text}`
    }
-   return dump
+   return dataString
 }
 
