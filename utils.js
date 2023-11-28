@@ -13,3 +13,15 @@ export const $ = (id) => document.getElementById(id)
  * @returns void  
  */
 export const on = (el, event, callback) => el.addEventListener(event, callback)
+
+/**
+ * save text content to a file
+ * @param {*} fileName 
+ * @param {*} content 
+ */
+export function saveDataFile(fileName, content) {
+   let a = document.createElement('a');
+   a.href = "data:application/octet-stream," + encodeURIComponent(content);
+   a.download = fileName;
+   a.click();
+};

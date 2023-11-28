@@ -1,19 +1,19 @@
-
-let txt = ''
+import { saveDataFile } from './utils.js'
 
 /**
  * export data from localStorage
  */
 export function exportData() {
    const data = Object.assign({}, localStorage)
+   let content = ''
    for (const element in data) {
-      showData(data, element)
+      content += formatData(data[element], element)
+      console.log(content)
    };
-   saveDataFile('data-dump.txt', txt)
+   saveDataFile('data-dump.txt', content)
 }
 
-function showData(data, element) {
-   const val = data[element]
+function formatData(val, element) {
    const parsedVal = JSON.parse(val)
    const len = parsedVal.length
    let dump = `
@@ -22,12 +22,6 @@ ${element}:`
       dump += `
    ${JSON.parse(val)[i].text}`
    }
-   txt += dump
+   return dump
 }
 
-function saveDataFile(fileName, content) {
-   let a = document.createElement('a');
-   a.href = "data:application/octet-stream," + encodeURIComponent(content);
-   a.download = fileName;
-   a.click();
-};
