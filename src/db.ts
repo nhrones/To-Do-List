@@ -2,16 +2,24 @@ import { buildSelectElement } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
 
-export function init() {
-}
 
-function  fetchQuerySet() {
+function fetchQuerySet() {
+   // const kv = Object.assign({}, window.localStorage);
+   // console.log(kv)
+   // const kvJson = JSON.stringify(kv)
+   // console.info(JSON.stringify(kv))
+   // const parsed = JSON.parse(kvJson)
+   // console.log(parsed)
+
+   //for (let [key, value] of Object.entries(localStorage)) {
+   //   console.log(`${key}: ${value}`);
+   //}
 }
 
 function get(key = "topics") {
    console.log('getting ', key)
-   const raw = localStorage.getItem(key) 
-   return (raw) 
+   const raw = localStorage.getItem(key)
+   return (raw)
       ? JSON.parse(raw)
       : null;
 }
@@ -22,7 +30,7 @@ function set(key: string, value: string) {
 
 // fetch all todo data
 export function fetchAll() {
-   let queryset = fetchQuerySet() //TODO 
+   let queryset = fetchQuerySet()
    if (queryset === null) {
       console.log(`No data found for todos!`)
    }
@@ -59,7 +67,7 @@ export function getTasks(key = "") {
          //@ts-ignore ?
          tasks = data
       }
-   
+
       refreshDisplay();
    }
 }
@@ -71,8 +79,8 @@ export function getTasks(key = "") {
  */
 const parseTopics = (topics: string) => {
    const parsedTopics = (typeof topics === "string")
-   ? JSON.parse(topics)
-   : topics
+      ? JSON.parse(topics)
+      : topics
 
    console.info('parsedTopics ', parsedTopics)
    for (let index = 0; index < parsedTopics.length; index++) {
