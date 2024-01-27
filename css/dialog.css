@@ -1,0 +1,16 @@
+
+dialog {
+   border-radius: 1rem;
+   border-width: 1px;
+   border-color: red;
+   background-color: black;
+ }
+
+ label {
+   margin-right: 10px;
+   color: white;
+ } 
+ 
+ p {
+   color: white;
+ }

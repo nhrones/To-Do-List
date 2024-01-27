@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 
 /** 
  * build a task element template string
@@ -5,7 +6,7 @@
  * @param {object} item the task item
  * @returns {string} a task element template
  */
-export function taskTemplate(index, item) {
+export function taskTemplate(index: any, item: any) {
    const { disabled, text } = item
    return `
    <div class="todo-container">

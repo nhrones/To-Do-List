@@ -7,6 +7,11 @@
          "label": "SERVE",
          "type": "shell",
          "command": "serve"
+      },
+      {
+         "label": "HOT",
+         "type": "shell",
+         "command": "hot",
       }
    ]
 } 

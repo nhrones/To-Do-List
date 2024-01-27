@@ -2,5 +2,19 @@
    "simple": {
       "TargetFolder": "",
       "Port": 8080
+   },
+   "hot": {
+      "TargetFolder": "./",
+      "ServeFolder": "./",
+      "Port": 8080,
+      "HotPort": 9099,
+      "BuildTarget": "./",
+      "Entry": [
+         "./src/main.ts"
+      ],
+      "Watch": [
+         "src"
+      ],
+      "Minify": false
    }
 }

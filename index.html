@@ -5,24 +5,24 @@
    <meta charset="UTF-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
    <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,">
-   <link rel="stylesheet" href="./style.css" />
-   <link rel="stylesheet" href="./select.css" />
-   <script type=module src="./app.js" defer></script>
+   <link rel="stylesheet" href="./css/style.css" />
+   <link rel="stylesheet" href="./css/select.css" />
+   <link rel="stylesheet" href="./css/dialog.css" />
+   <script type=module src="./bundle.js"></script>
 
    <title>Todo</title>
 </head>
 
 <body>
    <section class="todo">
-
-      <div id="selwrap" class="custom-dropdown">
+      <div class="custom-dropdown">
          <select id="topics">
-           <option value="" disabled selected hidden>Select A Todo Topic</option>
-         </select> 
+            <option value="" disabled selected hidden>Select A Todo Topic</option>
+         </select>
          <button id="closebtn"> X </button>
       </div>
       <div class="input">
-         <input type="text" class="input-field" id="todoInput" placeholder="Add a new task" />
+         <input type="text" id="todoInput" class="input-field" placeholder="Add a new task" />
       </div>
       <ul class="scroll">
          <li id="todoList"></li>
@@ -35,8 +35,11 @@
             <button id="deletecompleted">Delete Completed</button>
          </div>
       </div>
+      <dialog id="popupDialog">
+         <p id="popup_text">Yup!</p>
+         <p>Press any key to continue.</p>
+      </dialog>
    </section>
-   <script type=module src="export.js"></script>
 </body>
- 
+
 </html>
