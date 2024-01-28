@@ -258,7 +258,5 @@ function init() {
 }
 
 // src/main.ts
-var RunningLocal = window.location.href === "http://localhost:8080/";
-console.log(`RunningLocal`, RunningLocal);
 init();
 fetchAll();

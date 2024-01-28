@@ -1,7 +1,7 @@
 {
    "simple": {
       "DEV": true,
-      "Port": 80,
+      "Port": 8080,
       "Serve": ""
    },
    "hot": {
@@ -10,9 +10,9 @@
          "./src/main.ts"
       ],
       "Minify": false,
-      "Out": "./dist",
+      "Out": "dist",
       "Port": 8080,
-      "Serve": "./",
+      "Serve": "",
       "Watch": [
          "src",
          "dist",

@@ -5,6 +5,11 @@
          "label": "HOT",
          "type": "shell",
          "command": "hot",
+      },
+      {
+         "label": "RUN",
+         "type": "shell",
+         "command": "serve",
       }
    ]
 } 
