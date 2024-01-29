@@ -7,6 +7,11 @@
          "command": "hot",
       },
       {
+         "label": "BUILD",
+         "type": "shell",
+         "command": "build",
+      },
+      {
          "label": "RUN",
          "type": "shell",
          "command": "serve",

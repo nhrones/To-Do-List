@@ -3,9 +3,10 @@ import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
 
 
-function fetchQuerySet() {
-   // const kv = Object.assign({}, window.localStorage);
-   // console.log(kv)
+export function fetchQuerySet() {
+
+   const kv = Object.assign({}, window.localStorage);
+   console.log('fetchQuerySet-kv: ', kv)
    // const kvJson = JSON.stringify(kv)
    // console.info(JSON.stringify(kv))
    // const parsed = JSON.parse(kvJson)
@@ -39,8 +40,6 @@ export function fetchAll() {
    }
    return queryset
 }
-
-
 
 /** an array of todo tasks to be presented */
 export let tasks: { text: string, disabled: boolean }[] = []

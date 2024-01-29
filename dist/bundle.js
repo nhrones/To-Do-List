@@ -1,8 +1,10 @@
 // deno-lint-ignore-file
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/utils.ts
-var $ = (id) => document.getElementById(id);
-var on = (el, event, callback) => el.addEventListener(event, callback);
+var $ = /* @__PURE__ */ __name((id) => document.getElementById(id), "$");
+var on = /* @__PURE__ */ __name((el, event, callback) => el.addEventListener(event, callback), "on");
 
 // src/selectBuilder.ts
 function buildSelectElement(options) {
@@ -13,6 +15,7 @@ function buildSelectElement(options) {
     }
   }
 }
+__name(buildSelectElement, "buildSelectElement");
 function addOptionGroup(selectElement, label, options) {
   const len = options.length;
   let optionElement;
@@ -27,18 +30,24 @@ function addOptionGroup(selectElement, label, options) {
   selectElement.appendChild(optionGroup);
   return optionGroup;
 }
+__name(addOptionGroup, "addOptionGroup");
 
 // src/db.ts
 function fetchQuerySet() {
+  const kv = Object.assign({}, window.localStorage);
+  console.log("fetchQuerySet-kv: ", kv);
 }
+__name(fetchQuerySet, "fetchQuerySet");
 function get(key = "topics") {
   console.log("getting ", key);
   const raw = localStorage.getItem(key);
   return raw ? JSON.parse(raw) : null;
 }
+__name(get, "get");
 function set(key, value) {
   localStorage.setItem(key, value);
 }
+__name(set, "set");
 function fetchAll() {
   let queryset = fetchQuerySet();
   if (queryset === null) {
@@ -49,6 +58,7 @@ function fetchAll() {
   }
   return queryset;
 }
+__name(fetchAll, "fetchAll");
 var tasks = [];
 var keyName = "topics";
 function getTasks(key = "") {
@@ -67,7 +77,8 @@ function getTasks(key = "") {
     refreshDisplay();
   }
 }
-var parseTopics = (topics) => {
+__name(getTasks, "getTasks");
+var parseTopics = /* @__PURE__ */ __name((topics) => {
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
   console.info("parsedTopics ", parsedTopics);
   for (let index = 0; index < parsedTopics.length; index++) {
@@ -87,8 +98,8 @@ var parseTopics = (topics) => {
     parsedTopics[index].text = newText;
   }
   return parsedTopics;
-};
-var buildTopics = () => {
+}, "parseTopics");
+var buildTopics = /* @__PURE__ */ __name(() => {
   const data = get("topics");
   console.info("data ", data);
   const parsedTopics = parseTopics(data);
@@ -104,13 +115,14 @@ var buildTopics = () => {
   } else {
     console.log(`No topics found!`);
   }
-};
+}, "buildTopics");
 function saveTasks() {
   console.log(`Raw Tasks - `, tasks);
   const value = JSON.stringify(tasks, null, 2);
   console.log(`SaveTasks - setting "${keyName}" to ${value}`);
   set(keyName, value);
 }
+__name(saveTasks, "saveTasks");
 function deleteCompleted() {
   const savedtasks = [];
   let deleted = 0;
@@ -126,6 +138,7 @@ function deleteCompleted() {
   popupText.textContent = `Removed ${deleted} tasks!`;
   popupDialog.showModal();
 }
+__name(deleteCompleted, "deleteCompleted");
 
 // src/templates.ts
 function taskTemplate(index, item) {
@@ -145,6 +158,7 @@ function taskTemplate(index, item) {
    </div>
  `;
 }
+__name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
 function addTask() {
@@ -157,6 +171,7 @@ function addTask() {
     refreshDisplay();
   }
 }
+__name(addTask, "addTask");
 function refreshDisplay() {
   todoList.innerHTML = "";
   if (tasks && tasks.length > 0) {
@@ -198,6 +213,7 @@ function refreshDisplay() {
   }
   todoCount.textContent = "" + tasks.length;
 }
+__name(refreshDisplay, "refreshDisplay");
 
 // src/export.ts
 function backupData() {
@@ -207,6 +223,7 @@ function backupData() {
   const raw = localStorage.getItem("todo_backup") ?? "";
   console.info("raw from localStorage: ", raw);
 }
+__name(backupData, "backupData");
 
 // src/dom.ts
 var backupbtn = $("backupbtn");
@@ -256,7 +273,8 @@ function init() {
   });
   refreshDisplay();
 }
+__name(init, "init");
 
 // src/main.ts
 init();
-fetchAll();
+fetchQuerySet();
