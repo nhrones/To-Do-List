@@ -91,7 +91,7 @@ const parseTopics = (topics: string) => {
 export const buildTopics = () => {
    const data = RemoteIDB.get("topics")
    
-   if (data.length< 2) alert('No-Topics')
+   //if (data.length< 2) alert('No-Topics')
 
    const parsedTopics = parseTopics(data as string)
    if (parsedTopics != null) {

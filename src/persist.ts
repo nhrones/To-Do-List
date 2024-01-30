@@ -93,13 +93,12 @@ export function set(key: string, value: any) {
 export async function hydrate() {
    let result = await request({ procedure: 'GET', key: IDB_KEY })
    console.info('result: ', result)
-   if (!result) {
+   if (result === 'NOT FOUND') {
 
-      set("topics",[
-       {"text": "Topics\n Todo App Topics, key = topics", "disabled": false}
-      ])
-
-      await hydrate();
+      //set("topics",'[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}]')
+      //set("topics",'[{"text": "Topics\nTodo App Topics, key = topics", "disabled": false}]')
+      set("topics",[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}])
+      return await hydrate();
    }
    let records: Iterable<readonly [string, string]> | null | undefined
    if (typeof result === 'string') records = JSON.parse(result)
