@@ -1,10 +1,8 @@
 // deno-lint-ignore-file
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/utils.ts
-var $ = /* @__PURE__ */ __name((id) => document.getElementById(id), "$");
-var on = /* @__PURE__ */ __name((el, event, callback) => el.addEventListener(event, callback), "on");
+var $ = (id) => document.getElementById(id);
+var on = (el, event, callback) => el.addEventListener(event, callback);
 
 // src/selectBuilder.ts
 function buildSelectElement(options) {
@@ -15,7 +13,6 @@ function buildSelectElement(options) {
     }
   }
 }
-__name(buildSelectElement, "buildSelectElement");
 function addOptionGroup(selectElement, label, options) {
   const len = options.length;
   let optionElement;
@@ -30,41 +27,69 @@ function addOptionGroup(selectElement, label, options) {
   selectElement.appendChild(optionGroup);
   return optionGroup;
 }
-__name(addOptionGroup, "addOptionGroup");
+
+// src/persist.ts
+var todos = /* @__PURE__ */ new Map();
+var nextTxId = 0;
+var callbacks = /* @__PURE__ */ new Map();
+var idbWorker = new Worker("./dist/idbWorker.js");
+var IDB_KEY = "TODO";
+async function init() {
+  idbWorker.onmessage = (evt) => {
+    const { msgID, error, result } = evt.data;
+    if (!callbacks.has(msgID))
+      return;
+    const callback = callbacks.get(msgID);
+    callbacks.delete(msgID);
+    if (callback)
+      callback(error, result);
+  };
+  return await hydrate();
+}
+var get = (key) => {
+  const tasks2 = todos.get(key);
+  console.info("todos:", todos);
+  console.log(`IDB-get key ${key} = ${tasks2}`);
+  return tasks2;
+};
+function set(key, value) {
+  todos.set(key, value);
+  persist();
+}
+async function hydrate() {
+  let result = await request({ procedure: "GET", key: IDB_KEY });
+  if (result === "NOT FOUND")
+    return null;
+  let records;
+  if (typeof result === "string")
+    records = JSON.parse(result);
+  todos = new Map(records);
+  return todos;
+}
+async function persist() {
+  let valueString = JSON.stringify(Array.from(todos.entries()));
+  await request({ procedure: "SET", key: IDB_KEY, value: valueString });
+}
+function request(newRequest) {
+  const txID = nextTxId++;
+  return new Promise((resolve, reject) => {
+    callbacks.set(txID, (error, result) => {
+      if (error)
+        reject(new Error(error.message));
+      resolve(result);
+    });
+    idbWorker.postMessage({ txID, payload: newRequest });
+  });
+}
 
 // src/db.ts
-function fetchQuerySet() {
-  const kv = Object.assign({}, window.localStorage);
-  console.log("fetchQuerySet-kv: ", kv);
-}
-__name(fetchQuerySet, "fetchQuerySet");
-function get(key = "topics") {
-  console.log("getting ", key);
-  const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : null;
-}
-__name(get, "get");
-function set(key, value) {
-  localStorage.setItem(key, value);
-}
-__name(set, "set");
-function fetchAll() {
-  let queryset = fetchQuerySet();
-  if (queryset === null) {
-    console.log(`No data found for todos!`);
-  }
-  if (typeof queryset === "string") {
-    queryset = JSON.parse(queryset) || [];
-  }
-  return queryset;
-}
-__name(fetchAll, "fetchAll");
+await init();
 var tasks = [];
 var keyName = "topics";
 function getTasks(key = "") {
   keyName = key;
   if (key.length) {
-    let data = get(key);
+    let data = get(key) ?? [];
     if (data === null) {
       console.log(`No data found for ${keyName}`);
       data = [];
@@ -77,8 +102,7 @@ function getTasks(key = "") {
     refreshDisplay();
   }
 }
-__name(getTasks, "getTasks");
-var parseTopics = /* @__PURE__ */ __name((topics) => {
+var parseTopics = (topics) => {
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
   console.info("parsedTopics ", parsedTopics);
   for (let index = 0; index < parsedTopics.length; index++) {
@@ -98,10 +122,10 @@ var parseTopics = /* @__PURE__ */ __name((topics) => {
     parsedTopics[index].text = newText;
   }
   return parsedTopics;
-}, "parseTopics");
-var buildTopics = /* @__PURE__ */ __name(() => {
+};
+var buildTopics = () => {
   const data = get("topics");
-  console.info("data ", data);
+  console.info("buildTopics - IDG.get ", data);
   const parsedTopics = parseTopics(data);
   if (parsedTopics != null) {
     for (let index = 0; index < parsedTopics.length; index++) {
@@ -115,14 +139,13 @@ var buildTopics = /* @__PURE__ */ __name(() => {
   } else {
     console.log(`No topics found!`);
   }
-}, "buildTopics");
+};
 function saveTasks() {
   console.log(`Raw Tasks - `, tasks);
   const value = JSON.stringify(tasks, null, 2);
   console.log(`SaveTasks - setting "${keyName}" to ${value}`);
   set(keyName, value);
 }
-__name(saveTasks, "saveTasks");
 function deleteCompleted() {
   const savedtasks = [];
   let deleted = 0;
@@ -138,7 +161,6 @@ function deleteCompleted() {
   popupText.textContent = `Removed ${deleted} tasks!`;
   popupDialog.showModal();
 }
-__name(deleteCompleted, "deleteCompleted");
 
 // src/templates.ts
 function taskTemplate(index, item) {
@@ -158,7 +180,6 @@ function taskTemplate(index, item) {
    </div>
  `;
 }
-__name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
 function addTask() {
@@ -171,7 +192,6 @@ function addTask() {
     refreshDisplay();
   }
 }
-__name(addTask, "addTask");
 function refreshDisplay() {
   todoList.innerHTML = "";
   if (tasks && tasks.length > 0) {
@@ -213,17 +233,15 @@ function refreshDisplay() {
   }
   todoCount.textContent = "" + tasks.length;
 }
-__name(refreshDisplay, "refreshDisplay");
 
 // src/export.ts
 function backupData() {
-  const data = fetchAll();
+  const data = {};
   console.info("todo export data: ", data);
   localStorage.setItem("todo_backup", JSON.stringify(data, null, 2));
   const raw = localStorage.getItem("todo_backup") ?? "";
   console.info("raw from localStorage: ", raw);
 }
-__name(backupData, "backupData");
 
 // src/dom.ts
 var backupbtn = $("backupbtn");
@@ -236,7 +254,7 @@ var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
 var currentTopic = "";
-function init() {
+function init2() {
   buildTopics();
   getTasks(currentTopic);
   on(todoInput, "keydown", function(event) {
@@ -273,8 +291,6 @@ function init() {
   });
   refreshDisplay();
 }
-__name(init, "init");
 
 // src/main.ts
-init();
-fetchQuerySet();
+init2();

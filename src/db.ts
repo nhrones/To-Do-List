@@ -1,45 +1,10 @@
 import { buildSelectElement } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
+import * as RemoteIDB from './persist.ts'
 
-
-export function fetchQuerySet() {
-
-   const kv = Object.assign({}, window.localStorage);
-   console.log('fetchQuerySet-kv: ', kv)
-   // const kvJson = JSON.stringify(kv)
-   // console.info(JSON.stringify(kv))
-   // const parsed = JSON.parse(kvJson)
-   // console.log(parsed)
-
-   //for (let [key, value] of Object.entries(localStorage)) {
-   //   console.log(`${key}: ${value}`);
-   //}
-}
-
-function get(key = "topics") {
-   console.log('getting ', key)
-   const raw = localStorage.getItem(key)
-   return (raw)
-      ? JSON.parse(raw)
-      : null;
-}
-
-function set(key: string, value: string) {
-   localStorage.setItem(key, value);
-}
-
-// fetch all todo data
-export function fetchAll() {
-   let queryset = fetchQuerySet()
-   if (queryset === null) {
-      console.log(`No data found for todos!`)
-   }
-   if (typeof queryset === 'string') {
-      queryset = JSON.parse(queryset) || []
-   }
-   return queryset
-}
+/** hydrate db */
+await RemoteIDB.init()
 
 /** an array of todo tasks to be presented */
 export let tasks: { text: string, disabled: boolean }[] = []
@@ -55,7 +20,7 @@ let keyName = 'topics'
 export function getTasks(key = "") {
    keyName = key
    if (key.length) {
-      let data = get(key)
+      let data = RemoteIDB.get(key) ?? []
       if (data === null) {
          console.log(`No data found for ${keyName}`)
          data = []
@@ -63,7 +28,6 @@ export function getTasks(key = "") {
       if (typeof data === 'string') {
          tasks = JSON.parse(data) || []
       } else {
-         //@ts-ignore ?
          tasks = data
       }
 
@@ -105,8 +69,10 @@ const parseTopics = (topics: string) => {
  * build a set of select options
  */
 export const buildTopics = () => {
-   const data: unknown = get("topics")
-   console.info('data ', data)
+   //const data: unknown = LS.get("topics")
+   //console.info('buildTopics - LS.get - data ', data)
+   const data = RemoteIDB.get("topics")
+   console.info('buildTopics - IDG.get ', data)
    const parsedTopics = parseTopics(data as string)
    if (parsedTopics != null) {
       for (let index = 0; index < parsedTopics.length; index++) {
@@ -124,13 +90,13 @@ export const buildTopics = () => {
 }
 
 /**
- * Save all tasks to local storage
+ * Save all tasks
  */
 export function saveTasks() {
    console.log(`Raw Tasks - `, tasks)
    const value = JSON.stringify(tasks, null, 2)
    console.log(`SaveTasks - setting "${keyName}" to ${value}`)
-   set(keyName, value);
+   RemoteIDB.set(keyName, value);
 }
 
 /** 
