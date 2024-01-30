@@ -104,18 +104,21 @@ function getTasks(key = "") {
 }
 var parseTopics = (topics) => {
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
-  console.info("parsedTopics ", parsedTopics);
   for (let index = 0; index < parsedTopics.length; index++) {
     const thisTopic = parsedTopics[index];
+    console.log("thisTopic.text = ", thisTopic.text);
     const txt = thisTopic.text;
     const lines = txt.split("\n");
+    console.info("lines ", lines);
     const topic = lines[0].trim();
+    console.info("topic ", topic);
     let newText = `{"${topic}":[`;
     for (let i = 1; i < lines.length; i++) {
       const element = lines[i];
       const items = element.split(",");
       const title = items[0];
-      const keyName2 = items[1].split("=")[1].trim();
+      let k = items[1].split("=");
+      const keyName2 = k[1].trim();
       newText += `{ "title": "${title}", "key": "${keyName2}" },`;
     }
     newText = newText.substring(0, newText.length - 1) + `] }`;
@@ -148,17 +151,17 @@ function saveTasks() {
 }
 function deleteCompleted() {
   const savedtasks = [];
-  let deleted = 0;
+  let numberDeleted = 0;
   tasks.forEach((task) => {
     if (task.disabled === false) {
       savedtasks.push(task);
     } else {
-      deleted++;
+      numberDeleted++;
     }
   });
   tasks = savedtasks;
   saveTasks();
-  popupText.textContent = `Removed ${deleted} tasks!`;
+  popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
 

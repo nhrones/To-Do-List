@@ -6,7 +6,7 @@ export type DbRpcPackage = {
    value?: string
 }
 
-export let todos: Map<string, string> = new Map()
+export let todos: Map<string, any> = new Map()
 
 const DEV = true
 
@@ -36,6 +36,21 @@ export async function init() {
       callbacks.delete(msgID)                   // clean up
       if (callback) callback(error, result)     // execute
    }
+/*
+[
+   {text: "KV-Codecs↵ KV-Key-Codec, key = key-codec↵ KV-Value-Codec, key = value-codec",…}, {,…},…]
+   {text: "KV-Codecs↵ KV-Key-Codec, key = key-codec↵ KV-Value-Codec, key = value-codec",…}
+   {text: "Other↵ This Todo App, key = todo-app", disabled: false}
+   {text: "Frameworks↵ DWM-ReactiveUI, key = reactive-ui↵ Vanilla Framework, key = vamfam",…}
+   {text: "Utilities↵ Config, key = cfg↵ Other, key = cfg-other", disabled: false}
+   {text: "Topics↵ Todo App Topics, key = topics", disabled: false}
+]
+*/
+
+   //set("topics",[
+   //    {"text": "Topics\n Todo App Topics, key = topics", "disabled": false}
+   //])
+
    // hydrate our todo data 
    return await hydrate()
 }
@@ -63,7 +78,7 @@ export const get = (key: string) => {
 /** 
  * The `set` method mutates - will call the `persist` method. 
  */
-export function set(key: string, value: string) {
+export function set(key: string, value: any) {
    todos.set(key, value)
    persist()
 }

@@ -6,6 +6,22 @@ import * as RemoteIDB from './persist.ts'
 /** hydrate db */
 await RemoteIDB.init()
 
+//========================================================
+// let tasklists = ``
+
+// Object.entries(localStorage).forEach(([ key, value ]) => {
+//    tasklists += `${key} = ${value}
+
+   
+// `;
+// })
+// console.clear()
+// console.clear()
+// console.log(tasklists)
+//=========================================================
+
+export const TodoTasks:Map<string, any[]> = new Map()
+
 /** an array of todo tasks to be presented */
 export let tasks: { text: string, disabled: boolean }[] = []
 
@@ -44,20 +60,30 @@ const parseTopics = (topics: string) => {
    const parsedTopics = (typeof topics === "string")
       ? JSON.parse(topics)
       : topics
-
-   console.info('parsedTopics ', parsedTopics)
+   //console.clear()
+   //console.info('parsedTopics ', parsedTopics)
+   //console.log('parsedTopics Array ', Array.isArray(parsedTopics))
    for (let index = 0; index < parsedTopics.length; index++) {
       const thisTopic = parsedTopics[index]
+      console.log('thisTopic.text = ', thisTopic.text)
       const txt = thisTopic.text as string
       const lines = txt.split('\n')
+      console.info('lines ',lines)
+
       const topic = lines[0].trim()
+      console.info('topic ',topic)
+
       let newText = `{"${topic}":[`
       for (let i = 1; i < lines.length; i++) {
          const element = lines[i];
          const items = element.split(',')
          const title = items[0]
-         const keyName = items[1].split('=')[1].trim()
+         //console.info(items[1])
+         let k = items[1].split('=')
+         const keyName = k[1].trim()
+         //console.log('keyName', keyName)
          newText += `{ "title": "${title}", "key": "${keyName}" },`
+         //console.log(newText)
       }
       newText = newText.substring(0, newText.length - 1) + `] }`
       parsedTopics[index].text = newText
@@ -104,16 +130,16 @@ export function saveTasks() {
  */
 export function deleteCompleted() {
    const savedtasks: { text: string, disabled: boolean }[] = []
-   let deleted = 0
+   let numberDeleted = 0
    tasks.forEach((task) => {
       if (task.disabled === false) {
          savedtasks.push(task)
       } else {
-         deleted++
+         numberDeleted++
       }
    })
    tasks = savedtasks
    saveTasks();
-   popupText.textContent = `Removed ${deleted} tasks!`
+   popupText.textContent = `Removed ${numberDeleted} tasks!`
    popupDialog.showModal()
 }
