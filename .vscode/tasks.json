@@ -2,11 +2,6 @@
    "version": "2.0.0",
    "tasks": [
       {
-         "label": "HOT",
-         "type": "shell",
-         "command": "hot",
-      },
-      {
          "label": "BUILD",
          "type": "shell",
          "command": "build",
@@ -15,6 +10,11 @@
          "label": "RUN",
          "type": "shell",
          "command": "serve",
+      },
+      {
+         "label": "HOT",
+         "type": "shell",
+         "command": "hot",
       }
    ]
 } 

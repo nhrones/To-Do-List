@@ -14,3 +14,9 @@ export const $ = (id: string) => document.getElementById(id)
  * @returns void  
  */
 export const on = (el: any, event: any, callback: any) => el.addEventListener(event, callback)
+
+//  await sleep(100);
+export function sleep(ms) {
+   return new Promise(resolve => setTimeout(resolve, ms || 1000));
+ }
+ 

@@ -1,9 +1,10 @@
+import {sleep} from './utils.ts'
 export type callback = (error: any, result: any) => void
 
 export type DbRpcPackage = {
    procedure: 'GET' | 'SET',
    key: string,
-   value?: string
+   value: any
 }
 
 export let todos: Map<string, any> = new Map()
@@ -15,6 +16,18 @@ let nextTxId = 0
 const callbacks: Map<number, callback> = new Map()
 
 const idbWorker = new Worker('./dist/idbWorker.js')
+
+idbWorker.onerror = (event) => {
+   console.log("There is an error with your worker!");
+ };
+
+const idbChannel = new BroadcastChannel("IDB")
+
+const logChannel = new BroadcastChannel("LOG")
+
+logChannel.onmessage = (evt) => {
+   console.log('=== WORKER SENT => ', evt.data)
+}
 
 const IDB_KEY = 'TODO'
 
@@ -29,27 +42,14 @@ export async function init() {
    // and call it with the error and result properities.
    // This will resolve or reject the promise that was
    // returned to the client when the callback was created.
-   idbWorker.onmessage = (evt: MessageEvent) => {
+   //idbWorker.onmessage = (evt: MessageEvent) => {
+   idbChannel.onmessage = (evt: MessageEvent) => {
       const { msgID, error, result } = evt.data // unpack
       if (!callbacks.has(msgID)) return         // check
       const callback = callbacks.get(msgID)     // fetch
       callbacks.delete(msgID)                   // clean up
       if (callback) callback(error, result)     // execute
    }
-/*
-[
-   {text: "KV-Codecs↵ KV-Key-Codec, key = key-codec↵ KV-Value-Codec, key = value-codec",…}, {,…},…]
-   {text: "KV-Codecs↵ KV-Key-Codec, key = key-codec↵ KV-Value-Codec, key = value-codec",…}
-   {text: "Other↵ This Todo App, key = todo-app", disabled: false}
-   {text: "Frameworks↵ DWM-ReactiveUI, key = reactive-ui↵ Vanilla Framework, key = vamfam",…}
-   {text: "Utilities↵ Config, key = cfg↵ Other, key = cfg-other", disabled: false}
-   {text: "Topics↵ Todo App Topics, key = topics", disabled: false}
-]
-*/
-
-   //set("topics",[
-   //    {"text": "Topics\n Todo App Topics, key = topics", "disabled": false}
-   //])
 
    // hydrate our todo data 
    return await hydrate()
@@ -69,8 +69,8 @@ export function remove(key: string): any {
  */
 export const get = (key: string) => {
    const tasks = todos.get(key)
-   console.info('todos:', todos)
-   console.log(`IDB-get key ${key} = ${tasks}`)
+   //console.info('todos:', todos)
+   //console.log(`IDB-get key ${key} = ${tasks}`)
    return tasks;
 }
 
@@ -91,13 +91,21 @@ export function set(key: string, value: any) {
  *     Build-Map: 16.80ms        
  */
 export async function hydrate() {
-   let result = await request({ procedure: 'GET', key: IDB_KEY })
-   console.info('result: ', result)
+   console.log('hydrate called!')
+   await sleep(100); // prevents worker race condition
+   let result = await request({ procedure: 'GET', key: IDB_KEY, value:'' })
+   //console.info('result: ', result)
    if (result === 'NOT FOUND') {
+      //set("topics",[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}])
+      set("topics", 
+      [
+         {text: `Apps
+   App1, key = app1`, disabled: false},
+         {text: `Topics
+   Todo App Topics, key = topics`, disabled: false}
+      ]
+      )
 
-      //set("topics",'[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}]')
-      //set("topics",'[{"text": "Topics\nTodo App Topics, key = topics", "disabled": false}]')
-      set("topics",[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}])
       return await hydrate();
    }
    let records: Iterable<readonly [string, string]> | null | undefined
@@ -136,6 +144,7 @@ export function request(newRequest: DbRpcPackage): Promise<any> {
          if (error) reject(new Error(error.message))
          resolve(result)
       })
-      idbWorker.postMessage({ txID: txID, payload: newRequest })
+      console.log('idbChannel.postMessage ', newRequest.procedure)
+      idbChannel.postMessage({ txID: txID, payload: newRequest })
    })
 }

@@ -3,22 +3,10 @@ import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
 import * as RemoteIDB from './persist.ts'
 
-/** hydrate db */
-await RemoteIDB.init()
-
-//========================================================
-// let tasklists = ``
-
-// Object.entries(localStorage).forEach(([ key, value ]) => {
-//    tasklists += `${key} = ${value}
-
-   
-// `;
-// })
-// console.clear()
-// console.clear()
-// console.log(tasklists)
-//=========================================================
+export async function initDB() {
+   /** hydrate db */
+   await RemoteIDB.init()
+}
 
 export const TodoTasks:Map<string, any[]> = new Map()
 
@@ -62,13 +50,13 @@ const parseTopics = (topics: string) => {
       : topics
    for (let index = 0; index < parsedTopics.length; index++) {
       const thisTopic = parsedTopics[index]
-      console.log('thisTopic.text = ', thisTopic.text)
+      //console.log('thisTopic.text = ', thisTopic.text)
       const txt = thisTopic.text as string
       const lines = txt.split('\n')
-      console.info('lines ',lines)
+      //console.info('lines ',lines)
 
       const topic = lines[0].trim()
-      console.info('topic ',topic)
+      //console.info('topic ',topic)
 
       let newText = `{"${topic}":[`
       for (let i = 1; i < lines.length; i++) {
@@ -113,9 +101,9 @@ export const buildTopics = () => {
  * Save all tasks
  */
 export function saveTasks() {
-   console.log(`Raw Tasks - `, tasks)
+   //console.log(`Raw Tasks - `, tasks)
    const value = JSON.stringify(tasks, null, 2)
-   console.log(`SaveTasks - setting "${keyName}" to ${value}`)
+   //console.log(`SaveTasks - setting "${keyName}" to ${value}`)
    RemoteIDB.set(keyName, value);
 }
 

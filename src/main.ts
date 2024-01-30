@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
 import * as DOM from './dom.ts'
-
+  
 // initialize all DOM elements and event handlers 
-DOM.init()
+await DOM.init() 

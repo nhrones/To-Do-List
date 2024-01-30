@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { addTask, refreshDisplay } from './tasks.ts'
-import { buildTopics, deleteCompleted, getTasks } from './db.ts';
+import { buildTopics, deleteCompleted, initDB, getTasks } from './db.ts';
 import { backupData } from './export.ts'
 import { $, on } from './utils.ts'
 
@@ -23,8 +23,8 @@ let currentTopic = ""
  * called once on start up
  * @param {string} topic the topic name (data-key) 
  */
-export function init() {
-
+export async function init() {
+   await initDB() 
    // assemble the topics drop-down UI
    buildTopics()
 
@@ -42,7 +42,7 @@ export function init() {
    // topic select change handler
    on(topicSelect, 'change', () => {
       currentTopic = topicSelect.value.toLowerCase()
-      console.log(`topicSelect change `, currentTopic)
+      //console.log(`topicSelect change `, currentTopic)
       getTasks(currentTopic)
    })
 

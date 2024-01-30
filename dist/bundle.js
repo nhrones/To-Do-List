@@ -3,6 +3,9 @@
 // src/utils.ts
 var $ = (id) => document.getElementById(id);
 var on = (el, event, callback) => el.addEventListener(event, callback);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms || 1e3));
+}
 
 // src/selectBuilder.ts
 function buildSelectElement(options) {
@@ -33,9 +36,17 @@ var todos = /* @__PURE__ */ new Map();
 var nextTxId = 0;
 var callbacks = /* @__PURE__ */ new Map();
 var idbWorker = new Worker("./dist/idbWorker.js");
+idbWorker.onerror = (event) => {
+  console.log("There is an error with your worker!");
+};
+var idbChannel = new BroadcastChannel("IDB");
+var logChannel = new BroadcastChannel("LOG");
+logChannel.onmessage = (evt) => {
+  console.log("=== WORKER SENT => ", evt.data);
+};
 var IDB_KEY = "TODO";
 async function init() {
-  idbWorker.onmessage = (evt) => {
+  idbChannel.onmessage = (evt) => {
     const { msgID, error, result } = evt.data;
     if (!callbacks.has(msgID))
       return;
@@ -48,8 +59,6 @@ async function init() {
 }
 var get = (key) => {
   const tasks2 = todos.get(key);
-  console.info("todos:", todos);
-  console.log(`IDB-get key ${key} = ${tasks2}`);
   return tasks2;
 };
 function set(key, value) {
@@ -57,10 +66,19 @@ function set(key, value) {
   persist();
 }
 async function hydrate() {
-  let result = await request({ procedure: "GET", key: IDB_KEY });
-  console.info("result: ", result);
+  console.log("hydrate called!");
+  await sleep(100);
+  let result = await request({ procedure: "GET", key: IDB_KEY, value: "" });
   if (result === "NOT FOUND") {
-    set("topics", [{ "text": "Topics\n Todo App Topics, key = topics", "disabled": false }]);
+    set(
+      "topics",
+      [
+        { text: `Apps
+   App1, key = app1`, disabled: false },
+        { text: `Topics
+   Todo App Topics, key = topics`, disabled: false }
+      ]
+    );
     return await hydrate();
   }
   let records;
@@ -81,12 +99,15 @@ function request(newRequest) {
         reject(new Error(error.message));
       resolve(result);
     });
-    idbWorker.postMessage({ txID, payload: newRequest });
+    console.log("idbChannel.postMessage ", newRequest.procedure);
+    idbChannel.postMessage({ txID, payload: newRequest });
   });
 }
 
 // src/db.ts
-await init();
+async function initDB() {
+  await init();
+}
 var tasks = [];
 var keyName = "topics";
 function getTasks(key = "") {
@@ -109,12 +130,9 @@ var parseTopics = (topics) => {
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
   for (let index = 0; index < parsedTopics.length; index++) {
     const thisTopic = parsedTopics[index];
-    console.log("thisTopic.text = ", thisTopic.text);
     const txt = thisTopic.text;
     const lines = txt.split("\n");
-    console.info("lines ", lines);
     const topic = lines[0].trim();
-    console.info("topic ", topic);
     let newText = `{"${topic}":[`;
     for (let i = 1; i < lines.length; i++) {
       const element = lines[i];
@@ -146,9 +164,7 @@ var buildTopics = () => {
   }
 };
 function saveTasks() {
-  console.log(`Raw Tasks - `, tasks);
   const value = JSON.stringify(tasks, null, 2);
-  console.log(`SaveTasks - setting "${keyName}" to ${value}`);
   set(keyName, value);
 }
 function deleteCompleted() {
@@ -259,7 +275,8 @@ var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
 var currentTopic = "";
-function init2() {
+async function init2() {
+  await initDB();
   buildTopics();
   getTasks(currentTopic);
   on(todoInput, "keydown", function(event) {
@@ -270,7 +287,6 @@ function init2() {
   });
   on(topicSelect, "change", () => {
     currentTopic = topicSelect.value.toLowerCase();
-    console.log(`topicSelect change `, currentTopic);
     getTasks(currentTopic);
   });
   on(closebtn, "click", () => {
@@ -298,4 +314,4 @@ function init2() {
 }
 
 // src/main.ts
-init2();
+await init2();

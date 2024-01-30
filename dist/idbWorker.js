@@ -1,21 +1,25 @@
 
 const DB_NAME = "TodoDB";
 const STORE_NAME = "ObjectStore";
+const idbChannel = new BroadcastChannel("IDB")
+const logChannel = new BroadcastChannel("LOG")
 let objectStore = null;
 
 function post(txID, error, result) {
+   //logChannel.postMessage('====== WORKER POSTING!')
    if (error) {
       console.error("Worker caught an error:", error);
-      self.postMessage({ msgID: txID, error: { message: error.message }, result: null });
+      idbChannel.postMessage({ msgID: txID, error: { message: error.message }, result: null });
    } else if (result === void 0) {
       console.info("Not Found!");
-      self.postMessage({ msgID: txID, error: null, result: "NOT FOUND" });
+      idbChannel.postMessage({ msgID: txID, error: null, result: "NOT FOUND" });
    } else {
-      self.postMessage({ msgID: txID, error: null, result });
+      idbChannel.postMessage({ msgID: txID, error: null, result });
    }
 }
 
-self.onmessage = function (evt) {
+idbChannel.onmessage = function (evt) {
+   logChannel.postMessage('worker idbChannel.onmessage')
    const data = evt.data;
    const { txID, payload } = data;
    const { procedure, key, value } = payload;
@@ -69,9 +73,11 @@ async function getStore() {
 }
 
 async function set(key, value) {
-   return (await getStore())("readwrite", (store) => promisifyRequest(store.put(value, key)));
+   return (await getStore())("readwrite", 
+      (store) => promisifyRequest(store.put(value, key)));
 }
 
 async function get(key) {
-   return (await getStore())("readonly", (store) => promisifyRequest(store.get(key)));
+   return (await getStore())("readonly", 
+      (store) => promisifyRequest(store.get(key)));
 }
