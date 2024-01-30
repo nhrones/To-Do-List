@@ -33,7 +33,7 @@ var todos = /* @__PURE__ */ new Map();
 var nextTxId = 0;
 var callbacks = /* @__PURE__ */ new Map();
 var idbWorker = new Worker("./dist/idbWorker.js");
-var IDB_KEY = "TODO";
+var IDB_KEY = "TODO2";
 async function init() {
   idbWorker.onmessage = (evt) => {
     const { msgID, error, result } = evt.data;
@@ -58,8 +58,13 @@ function set(key, value) {
 }
 async function hydrate() {
   let result = await request({ procedure: "GET", key: IDB_KEY });
-  if (result === "NOT FOUND")
-    return null;
+  console.info("result: ", result);
+  if (!result) {
+    set("topics", [
+      { "text": "Topics\n Todo App Topics, key = topics", "disabled": false }
+    ]);
+    await hydrate();
+  }
   let records;
   if (typeof result === "string")
     records = JSON.parse(result);
@@ -128,7 +133,8 @@ var parseTopics = (topics) => {
 };
 var buildTopics = () => {
   const data = get("topics");
-  console.info("buildTopics - IDG.get ", data);
+  if (data.length < 2)
+    alert("No-Topics");
   const parsedTopics = parseTopics(data);
   if (parsedTopics != null) {
     for (let index = 0; index < parsedTopics.length; index++) {

@@ -92,7 +92,15 @@ export function set(key: string, value: any) {
  */
 export async function hydrate() {
    let result = await request({ procedure: 'GET', key: IDB_KEY })
-   if (result === 'NOT FOUND') return null;
+   console.info('result: ', result)
+   if (!result) {
+
+      set("topics",[
+       {"text": "Topics\n Todo App Topics, key = topics", "disabled": false}
+      ])
+
+      await hydrate();
+   }
    let records: Iterable<readonly [string, string]> | null | undefined
    if (typeof result === 'string') records = JSON.parse(result)
    todos = new Map(records)

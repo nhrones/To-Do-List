@@ -31,7 +31,6 @@ self.onmessage = function (evt) {
          console.log('Worker GET: ', key)
          get(key).then((val) => {
             post(txID, null, val);
-            //console.log('Worker got value: ', val)
          }).catch((_e) => {
             post(txID, "error getting - " + key, null);
          });

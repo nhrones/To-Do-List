@@ -60,9 +60,6 @@ const parseTopics = (topics: string) => {
    const parsedTopics = (typeof topics === "string")
       ? JSON.parse(topics)
       : topics
-   //console.clear()
-   //console.info('parsedTopics ', parsedTopics)
-   //console.log('parsedTopics Array ', Array.isArray(parsedTopics))
    for (let index = 0; index < parsedTopics.length; index++) {
       const thisTopic = parsedTopics[index]
       console.log('thisTopic.text = ', thisTopic.text)
@@ -78,12 +75,9 @@ const parseTopics = (topics: string) => {
          const element = lines[i];
          const items = element.split(',')
          const title = items[0]
-         //console.info(items[1])
          let k = items[1].split('=')
          const keyName = k[1].trim()
-         //console.log('keyName', keyName)
          newText += `{ "title": "${title}", "key": "${keyName}" },`
-         //console.log(newText)
       }
       newText = newText.substring(0, newText.length - 1) + `] }`
       parsedTopics[index].text = newText
@@ -95,10 +89,10 @@ const parseTopics = (topics: string) => {
  * build a set of select options
  */
 export const buildTopics = () => {
-   //const data: unknown = LS.get("topics")
-   //console.info('buildTopics - LS.get - data ', data)
    const data = RemoteIDB.get("topics")
-   console.info('buildTopics - IDG.get ', data)
+   
+   if (data.length< 2) alert('No-Topics')
+
    const parsedTopics = parseTopics(data as string)
    if (parsedTopics != null) {
       for (let index = 0; index < parsedTopics.length; index++) {
