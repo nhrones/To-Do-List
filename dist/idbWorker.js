@@ -19,7 +19,6 @@ function post(txID, error, result) {
 }
 
 idbChannel.onmessage = function (evt) {
-   logChannel.postMessage('worker idbChannel.onmessage')
    const data = evt.data;
    const { txID, payload } = data;
    const { procedure, key, value } = payload;

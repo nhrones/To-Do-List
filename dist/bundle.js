@@ -55,6 +55,7 @@ async function init() {
     if (callback)
       callback(error, result);
   };
+  console.log("---persist.init() calling persist.hydrate()");
   return await hydrate();
 }
 var get = (key) => {
@@ -107,9 +108,10 @@ function request(newRequest) {
 // src/db.ts
 async function initDB() {
   await init();
+  buildTopics();
 }
 var tasks = [];
-var keyName = "topics";
+var keyName = "";
 function getTasks(key = "") {
   keyName = key;
   if (key.length) {
@@ -127,6 +129,7 @@ function getTasks(key = "") {
   }
 }
 var parseTopics = (topics) => {
+  console.log("---db.parseTopics()");
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
   for (let index = 0; index < parsedTopics.length; index++) {
     const thisTopic = parsedTopics[index];
@@ -148,6 +151,7 @@ var parseTopics = (topics) => {
   return parsedTopics;
 };
 var buildTopics = () => {
+  console.log("---db.buildTopics()");
   const data = get("topics");
   const parsedTopics = parseTopics(data);
   if (parsedTopics != null) {
@@ -274,11 +278,9 @@ var topicSelect = $("topics");
 var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
-var currentTopic = "";
+var currentTopic2 = "topics";
 async function init2() {
   await initDB();
-  buildTopics();
-  getTasks(currentTopic);
   on(todoInput, "keydown", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -286,8 +288,8 @@ async function init2() {
     }
   });
   on(topicSelect, "change", () => {
-    currentTopic = topicSelect.value.toLowerCase();
-    getTasks(currentTopic);
+    currentTopic2 = topicSelect.value.toLowerCase();
+    getTasks(currentTopic2);
   });
   on(closebtn, "click", () => {
     console.log(`closebtn ${location.href}`);

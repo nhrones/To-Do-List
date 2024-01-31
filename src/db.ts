@@ -1,11 +1,21 @@
 import { buildSelectElement } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
-import { popupText, popupDialog } from './dom.ts'
+import { currentTopic, popupText, popupDialog } from './dom.ts'
 import * as RemoteIDB from './persist.ts'
 
+
+/**
+ * init Data
+ * Hydrates cache data from IDB
+ */
 export async function initDB() {
+
    /** hydrate db */
    await RemoteIDB.init()
+
+   // assemble the topics drop-down UI
+   buildTopics()
+
 }
 
 export const TodoTasks:Map<string, any[]> = new Map()
@@ -14,7 +24,7 @@ export const TodoTasks:Map<string, any[]> = new Map()
 export let tasks: { text: string, disabled: boolean }[] = []
 
 /** the name of a data-key */
-let keyName = 'topics'
+let keyName = ''
 
 /**
  * Retrieve array of tasks from the service     
@@ -45,6 +55,7 @@ export function getTasks(key = "") {
  * @returns 
  */
 const parseTopics = (topics: string) => {
+   console.log('---db.parseTopics()')
    const parsedTopics = (typeof topics === "string")
       ? JSON.parse(topics)
       : topics
@@ -77,8 +88,11 @@ const parseTopics = (topics: string) => {
  * build a set of select options
  */
 export const buildTopics = () => {
+   console.log('---db.buildTopics()')
+   //HACK why not from here??
    const data = RemoteIDB.get("topics")
-   
+
+   //TODO this is where we should add default data
    //if (data.length< 2) alert('No-Topics')
 
    const parsedTopics = parseTopics(data as string)

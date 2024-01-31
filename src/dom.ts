@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
+/// <reference lib="dom" />
 import { addTask, refreshDisplay } from './tasks.ts'
-import { buildTopics, deleteCompleted, initDB, getTasks } from './db.ts';
+import { deleteCompleted, initDB, getTasks } from './db.ts';
 import { backupData } from './export.ts'
 import { $, on } from './utils.ts'
 
@@ -16,7 +17,7 @@ export const popupDialog = $('popupDialog') as HTMLDialogElement;
 export const popupText = $("popup_text") as HTMLElement;
 
 // topic name
-let currentTopic = ""
+export let currentTopic = "topics"
 
 /**
  * initialize all UI and event handlers    
@@ -24,12 +25,9 @@ let currentTopic = ""
  * @param {string} topic the topic name (data-key) 
  */
 export async function init() {
-   await initDB() 
-   // assemble the topics drop-down UI
-   buildTopics()
 
-   // get all stored tasks for this topic
-   getTasks(currentTopic)
+   // initialize the local DB cache
+   await initDB() 
 
    // todo input keydown handler
    on(todoInput, "keydown", function (event: any) {
@@ -42,7 +40,6 @@ export async function init() {
    // topic select change handler
    on(topicSelect, 'change', () => {
       currentTopic = topicSelect.value.toLowerCase()
-      //console.log(`topicSelect change `, currentTopic)
       getTasks(currentTopic)
    })
 

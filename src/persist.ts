@@ -32,17 +32,18 @@ logChannel.onmessage = (evt) => {
 const IDB_KEY = 'TODO'
 
 /** 
- * db init 
+ * IDB init     
+ * Hydrates the complete DB
  */
 export async function init() {
 
    // When we get a message from the worker we expect 
    // an object containing {msgID, error, and result}.
-   // We find the callback that was registered for this msgID, 
+   //
+   // We then find a callback registered for this msgID, 
    // and call it with the error and result properities.
    // This will resolve or reject the promise that was
    // returned to the client when the callback was created.
-   //idbWorker.onmessage = (evt: MessageEvent) => {
    idbChannel.onmessage = (evt: MessageEvent) => {
       const { msgID, error, result } = evt.data // unpack
       if (!callbacks.has(msgID)) return         // check
@@ -50,7 +51,7 @@ export async function init() {
       callbacks.delete(msgID)                   // clean up
       if (callback) callback(error, result)     // execute
    }
-
+   console.log('---persist.init() calling persist.hydrate()')
    // hydrate our todo data 
    return await hydrate()
 }
