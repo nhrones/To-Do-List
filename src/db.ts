@@ -1,7 +1,9 @@
 import { buildSelectElement } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
-import { currentTopic, popupText, popupDialog } from './dom.ts'
-import * as RemoteIDB from './persist.ts'
+import { popupText, popupDialog } from './dom.ts'
+import * as Cache from './dbCache.ts'
+
+export const TodoTasks:Map<string, any[]> = new Map()
 
 
 /**
@@ -11,14 +13,12 @@ import * as RemoteIDB from './persist.ts'
 export async function initDB() {
 
    /** hydrate db */
-   await RemoteIDB.init()
+   await Cache.init()
 
    // assemble the topics drop-down UI
    buildTopics()
 
 }
-
-export const TodoTasks:Map<string, any[]> = new Map()
 
 /** an array of todo tasks to be presented */
 export let tasks: { text: string, disabled: boolean }[] = []
@@ -33,15 +33,21 @@ let keyName = ''
  */
 export function getTasks(key = "") {
    keyName = key
+   if(key === 'topics') console.log(`============ getTasks topics`)
    if (key.length) {
-      let data = RemoteIDB.get(key) ?? []
+      let data = Cache.get(key) ?? []
+      if(key === 'topics') {
+         console.info(`============ getTasks topics:`,data)
+      }
       if (data === null) {
          console.log(`No data found for ${keyName}`)
          data = []
       }
       if (typeof data === 'string') {
+         console.info(`============ getTasks topics was string`)
          tasks = JSON.parse(data) || []
       } else {
+         console.info(`============ getTasks topics was object`)
          tasks = data
       }
 
@@ -50,11 +56,36 @@ export function getTasks(key = "") {
 }
 
 /**
+ * build a set of select options
+ */
+export const buildTopics = () => {
+
+   console.log('---db.buildTopics()')
+  
+   const data = Cache.get("topics")
+
+   const parsedTopics = parseTopics(data as string)
+   if (parsedTopics != null) {
+      for (let index = 0; index < parsedTopics.length; index++) {
+         try {
+            const options = JSON.parse(`${parsedTopics[index].text}`)
+            buildSelectElement(options)
+         } catch (_err) {
+            console.log('error parsing: ', parsedTopics[index].text)
+         }
+      }
+   } else {
+      console.log(`No topics found!`)
+   }
+
+}
+
+/**
  * parseTopics
  * @param topics 
  * @returns 
  */
-const parseTopics = (topics: string) => {
+function parseTopics (topics: string) {
    console.log('---db.parseTopics()')
    const parsedTopics = (typeof topics === "string")
       ? JSON.parse(topics)
@@ -85,40 +116,15 @@ const parseTopics = (topics: string) => {
 }
 
 /**
- * build a set of select options
- */
-export const buildTopics = () => {
-   console.log('---db.buildTopics()')
-   //HACK why not from here??
-   const data = RemoteIDB.get("topics")
-
-   //TODO this is where we should add default data
-   //if (data.length< 2) alert('No-Topics')
-
-   const parsedTopics = parseTopics(data as string)
-   if (parsedTopics != null) {
-      for (let index = 0; index < parsedTopics.length; index++) {
-         try {
-            const options = JSON.parse(`${parsedTopics[index].text}`)
-            buildSelectElement(options)
-         } catch (_err) {
-            console.log('error parsing: ', parsedTopics[index].text)
-         }
-      }
-   } else {
-      console.log(`No topics found!`)
-   }
-
-}
-
-/**
  * Save all tasks
  */
 export function saveTasks() {
    //console.log(`Raw Tasks - `, tasks)
    const value = JSON.stringify(tasks, null, 2)
    //console.log(`SaveTasks - setting "${keyName}" to ${value}`)
-   RemoteIDB.set(keyName, value);
+   //TODO Is this where we should clean up default topics?
+   //call parseTopics 
+   Cache.set(keyName, value);
 }
 
 /** 

@@ -2,11 +2,11 @@
 const DB_NAME = "TodoDB";
 const STORE_NAME = "ObjectStore";
 const idbChannel = new BroadcastChannel("IDB")
-const logChannel = new BroadcastChannel("LOG")
+
 let objectStore = null;
 
 function post(txID, error, result) {
-   //logChannel.postMessage('====== WORKER POSTING!')
+
    if (error) {
       console.error("Worker caught an error:", error);
       idbChannel.postMessage({ msgID: txID, error: { message: error.message }, result: null });

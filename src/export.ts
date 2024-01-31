@@ -18,8 +18,6 @@ export function backupData() {
  * @returns data - 
  */
 export function restoreData() {
-   const raw = localStorage.getItem('todo_backup')?? ""
-   console.info('raw from localStorage: ', raw)
-   //TODO save all todo records to kv
-
+   //const raw = localStorage.getItem('todo_backup')?? ""
+   //console.info('raw from localStorage: ', raw)
 }

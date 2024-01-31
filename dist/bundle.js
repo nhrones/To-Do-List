@@ -8,11 +8,11 @@ function sleep(ms) {
 }
 
 // src/selectBuilder.ts
-function buildSelectElement(options) {
+function buildSelectElement(props) {
   const selectElement = $("topics");
-  for (const prop in options) {
-    if (options.hasOwnProperty(prop)) {
-      addOptionGroup(selectElement, prop, options[prop]);
+  for (const prop in props) {
+    if (props.hasOwnProperty(prop)) {
+      addOptionGroup(selectElement, prop, props[prop]);
     }
   }
 }
@@ -31,8 +31,8 @@ function addOptionGroup(selectElement, label, options) {
   return optionGroup;
 }
 
-// src/persist.ts
-var todos = /* @__PURE__ */ new Map();
+// src/dbCache.ts
+var todoCache = /* @__PURE__ */ new Map();
 var nextTxId = 0;
 var callbacks = /* @__PURE__ */ new Map();
 var idbWorker = new Worker("./dist/idbWorker.js");
@@ -40,11 +40,7 @@ idbWorker.onerror = (event) => {
   console.log("There is an error with your worker!");
 };
 var idbChannel = new BroadcastChannel("IDB");
-var logChannel = new BroadcastChannel("LOG");
-logChannel.onmessage = (evt) => {
-  console.log("=== WORKER SENT => ", evt.data);
-};
-var IDB_KEY = "TODO";
+var TODO_KEY = "TODO";
 async function init() {
   idbChannel.onmessage = (evt) => {
     const { msgID, error, result } = evt.data;
@@ -59,25 +55,26 @@ async function init() {
   return await hydrate();
 }
 var get = (key) => {
-  const tasks2 = todos.get(key);
+  const tasks2 = todoCache.get(key);
   return tasks2;
 };
 function set(key, value) {
-  todos.set(key, value);
+  console.info("setting value ", value);
+  todoCache.set(key, value);
   persist();
 }
 async function hydrate() {
-  console.log("hydrate called!");
   await sleep(100);
-  let result = await request({ procedure: "GET", key: IDB_KEY, value: "" });
+  let result = await request({ procedure: "GET", key: TODO_KEY, value: "" });
   if (result === "NOT FOUND") {
     set(
       "topics",
       [
-        { text: `Apps
-   App1, key = app1`, disabled: false },
-        { text: `Topics
-   Todo App Topics, key = topics`, disabled: false }
+        {
+          text: `Topics   
+               Todo App Topics, key = topics`,
+          disabled: false
+        }
       ]
     );
     return await hydrate();
@@ -85,12 +82,11 @@ async function hydrate() {
   let records;
   if (typeof result === "string")
     records = JSON.parse(result);
-  todos = new Map(records);
-  return todos;
+  todoCache = new Map(records);
 }
 async function persist() {
-  let valueString = JSON.stringify(Array.from(todos.entries()));
-  await request({ procedure: "SET", key: IDB_KEY, value: valueString });
+  let todoString = JSON.stringify(Array.from(todoCache.entries()));
+  await request({ procedure: "SET", key: TODO_KEY, value: todoString });
 }
 function request(newRequest) {
   const txID = nextTxId++;
@@ -114,21 +110,45 @@ var tasks = [];
 var keyName = "";
 function getTasks(key = "") {
   keyName = key;
+  if (key === "topics")
+    console.log(`============ getTasks topics`);
   if (key.length) {
     let data = get(key) ?? [];
+    if (key === "topics") {
+      console.info(`============ getTasks topics:`, data);
+    }
     if (data === null) {
       console.log(`No data found for ${keyName}`);
       data = [];
     }
     if (typeof data === "string") {
+      console.info(`============ getTasks topics was string`);
       tasks = JSON.parse(data) || [];
     } else {
+      console.info(`============ getTasks topics was object`);
       tasks = data;
     }
     refreshDisplay();
   }
 }
-var parseTopics = (topics) => {
+var buildTopics = () => {
+  console.log("---db.buildTopics()");
+  const data = get("topics");
+  const parsedTopics = parseTopics(data);
+  if (parsedTopics != null) {
+    for (let index = 0; index < parsedTopics.length; index++) {
+      try {
+        const options = JSON.parse(`${parsedTopics[index].text}`);
+        buildSelectElement(options);
+      } catch (_err) {
+        console.log("error parsing: ", parsedTopics[index].text);
+      }
+    }
+  } else {
+    console.log(`No topics found!`);
+  }
+};
+function parseTopics(topics) {
   console.log("---db.parseTopics()");
   const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
   for (let index = 0; index < parsedTopics.length; index++) {
@@ -149,24 +169,7 @@ var parseTopics = (topics) => {
     parsedTopics[index].text = newText;
   }
   return parsedTopics;
-};
-var buildTopics = () => {
-  console.log("---db.buildTopics()");
-  const data = get("topics");
-  const parsedTopics = parseTopics(data);
-  if (parsedTopics != null) {
-    for (let index = 0; index < parsedTopics.length; index++) {
-      try {
-        const options = JSON.parse(`${parsedTopics[index].text}`);
-        buildSelectElement(options);
-      } catch (_err) {
-        console.log("error parsing: ", parsedTopics[index].text);
-      }
-    }
-  } else {
-    console.log(`No topics found!`);
-  }
-};
+}
 function saveTasks() {
   const value = JSON.stringify(tasks, null, 2);
   set(keyName, value);
@@ -278,7 +281,7 @@ var topicSelect = $("topics");
 var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
-var currentTopic2 = "topics";
+var currentTopic = "topics";
 async function init2() {
   await initDB();
   on(todoInput, "keydown", function(event) {
@@ -288,8 +291,8 @@ async function init2() {
     }
   });
   on(topicSelect, "change", () => {
-    currentTopic2 = topicSelect.value.toLowerCase();
-    getTasks(currentTopic2);
+    currentTopic = topicSelect.value.toLowerCase();
+    getTasks(currentTopic);
   });
   on(closebtn, "click", () => {
     console.log(`closebtn ${location.href}`);

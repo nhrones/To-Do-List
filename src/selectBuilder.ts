@@ -4,14 +4,14 @@ import { $ } from './utils.ts'
 
 /** 
  * Build the select element.
- * @param {*}  options object.
+ * @param {*}  props object {title: string, key: string}.
  * @returns void
  */
-export function buildSelectElement(options: any) {
+export function buildSelectElement(props: {title: string, key: string}) {
    const selectElement = $("topics") 
-   for (const prop in options) {
-      if (options.hasOwnProperty(prop)) {
-         addOptionGroup(selectElement, prop, options[prop]);
+   for (const prop in props) {
+      if (props.hasOwnProperty(prop)) {
+         addOptionGroup(selectElement, prop, props[prop]);
       }
    }
 }

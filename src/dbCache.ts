@@ -1,4 +1,4 @@
-import {sleep} from './utils.ts'
+import { sleep } from './utils.ts'
 export type callback = (error: any, result: any) => void
 
 export type DbRpcPackage = {
@@ -7,7 +7,7 @@ export type DbRpcPackage = {
    value: any
 }
 
-export let todos: Map<string, any> = new Map()
+export let todoCache: Map<string, any> = new Map()
 
 const DEV = true
 
@@ -19,17 +19,11 @@ const idbWorker = new Worker('./dist/idbWorker.js')
 
 idbWorker.onerror = (event) => {
    console.log("There is an error with your worker!");
- };
+};
 
 const idbChannel = new BroadcastChannel("IDB")
 
-const logChannel = new BroadcastChannel("LOG")
-
-logChannel.onmessage = (evt) => {
-   console.log('=== WORKER SENT => ', evt.data)
-}
-
-const IDB_KEY = 'TODO'
+const TODO_KEY = 'TODO'
 
 /** 
  * IDB init     
@@ -60,7 +54,7 @@ export async function init() {
  * The `remove` method mutates - will call the `persist` method. 
  */
 export function remove(key: string): any {
-   let result = todos.delete(key)
+   let result = todoCache.delete(key)
    if (result === true) persist()
    return result
 }
@@ -69,9 +63,7 @@ export function remove(key: string): any {
  * The `get` method will not mutate records 
  */
 export const get = (key: string) => {
-   const tasks = todos.get(key)
-   //console.info('todos:', todos)
-   //console.log(`IDB-get key ${key} = ${tasks}`)
+   const tasks = todoCache.get(key)
    return tasks;
 }
 
@@ -80,7 +72,8 @@ export const get = (key: string) => {
  * The `set` method mutates - will call the `persist` method. 
  */
 export function set(key: string, value: any) {
-   todos.set(key, value)
+   console.info('setting value ', value)
+   todoCache.set(key, value)
    persist()
 }
 
@@ -92,37 +85,54 @@ export function set(key: string, value: any) {
  *     Build-Map: 16.80ms        
  */
 export async function hydrate() {
-   console.log('hydrate called!')
-   await sleep(100); // prevents worker race condition
-   let result = await request({ procedure: 'GET', key: IDB_KEY, value:'' })
-   //console.info('result: ', result)
+
+   // prevent a worker race condition
+   await sleep(100); 
+
+   // make a remote procedure call to get our 'TODO' record
+   let result = await request({ procedure: 'GET', key: TODO_KEY, value: '' })
+
+   // did we return data for the 'TODO' key in IDB?
    if (result === 'NOT FOUND') {
-      //set("topics",[{"text": "Topics\n Todo App Topics, key = topics", "disabled": false}])
-      set("topics", 
-      [
-         {text: `Apps
-   App1, key = app1`, disabled: false},
-         {text: `Topics
-   Todo App Topics, key = topics`, disabled: false}
-      ]
+
+      // no data found -- we'll need a minimal 
+      // default 'topics' set to start up
+      set("topics",
+         [
+            {
+               text: `Topics   
+               Todo App Topics, key = topics`,
+               disabled: false
+             }
+         ]
       )
 
+      // a recursive call after setting defaults
       return await hydrate();
    }
+
+   // create a proper records container for our todoCache-Map
    let records: Iterable<readonly [string, string]> | null | undefined
+
+   // we expect a string - so we''l need to parse it first
    if (typeof result === 'string') records = JSON.parse(result)
-   todos = new Map(records)
-   return todos
+
+   // load our local cache
+   todoCache = new Map(records)
 }
 
 /** 
- * Persist the current dbMap to an IndexedDB using         
- * our webworker. (takes ~ 90 ms for 100k records)    
- * This is called for any mutation of the dbMap (set/delete)     
+ * Persist the current dbMap to an IndexedDB 
+ * off-thread, using our webworker.    
+ * This is called for any mutation of the todoCache (set/delete)     
  */
 async function persist() {
-   let valueString = JSON.stringify(Array.from(todos.entries()))
-   await request({ procedure: 'SET', key: IDB_KEY, value: valueString })
+
+   // stringify the complete cache-Map
+   let todoString = JSON.stringify(Array.from(todoCache.entries()))
+
+   // request remote proceedure to SET the 'TODO' key with the cache-string
+   await request({ procedure: 'SET', key: TODO_KEY, value: todoString })
 }
 
 /** 
