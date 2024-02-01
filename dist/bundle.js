@@ -48,6 +48,7 @@ async function init() {
 function restoreCache(records) {
   const tasks2 = JSON.parse(records);
   todoCache = new Map(tasks2);
+  persist();
 }
 var get = (key) => {
   return todoCache.get(key);

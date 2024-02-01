@@ -10,7 +10,7 @@ Clicking on a task, allows you to edit the text in a multi-line TextArea element
 
 <br/>
 
-![Alt text](./media/rui.png)
+![Alt text](./media/base.png)
 
 ## Tasks
 To add a task, just type in the textInput and press enter.    
@@ -18,10 +18,10 @@ To edit a task, just click on it.
 An editable multiline TextArea will allow in place edits.    
 All edits are auto-saved on 'blur'.
 
-![Alt text](./media/edit.png)
+![Alt text](./media/rui.png)
 
 Each task has a `completed` checkBox.    
-The `Delete Completed` button on the bottom-right will delete any checked tasks.    
+The `Remove Completed` button on the bottom-right will delete any _checked_ tasks.    
 
 <br/>
 
@@ -35,15 +35,27 @@ The image above shows the `DWM-ReactiveUI` topic selected with it's current task
 <br/>
 
 ## Configurable Topics
-Note, the `Topic-Select-List` is configurable directly in the app. Just select `Todo App Topics`        
-in the drop-down, and then click on the json-text to edit it. Changes will show on tab refresh.   
+Note, the `Topic-Select-List` is configurable directly in the app. Just select `Todo App Topics` in the drop-down, then click on a topic-set to edit it.  
+As you'll see this list is what populates the select-dropdown
+You can add or modify these values.  The format is as follows:
+```
+Text on the top-line will be a _select-option_ ( a grouping )  
+Each line below represent a _topic, key_ pair;  TopicName, KeyName.
+The spacing/formatting is not defined, but the comma is required.
+Note that the key is used in the db to organize tasks by topic.
+``` 
+Any changes will show only after a _restart_ or _tab refresh_. 
+## Be careful here. 
+Any key change may cause orphaned db-tasks. I recomment doing a backup prior to edition the topics list.
 
 ![Alt text](./media/topics.png)
 
-This version uses localStorage.  I'll be _Deploying_ a version for DenoKv.    
+This version uses IndexedDB in a WebWorker.
 
-If something breaks, you can delete the localStorage file, and a blank template will auto install on next start.     
-See: ./selections.js/
+If something breaks, you can restore from a backup.  
+If you haven't backed up, you can delete the IDB file,   
+and on next start/refresh a blank template will auto install.     
+
 
 ## Deno Desktop App
 I started this project as a DWM-ReactiveUI app.     

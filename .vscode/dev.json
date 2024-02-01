@@ -11,7 +11,7 @@
       ],
       "Minify": false,
       "Out": "dist",
-      "Port": 8080,
+      "Port": 8084,
       "Serve": "",
       "Watch": [
          "src",

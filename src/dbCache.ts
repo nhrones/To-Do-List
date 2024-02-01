@@ -53,6 +53,7 @@ export async function init() {
 export function restoreCache(records: string) {
    const tasks = JSON.parse(records)
    todoCache = new Map(tasks)
+   persist()
 }
 
 /** The `remove` method mutates - will call the `persist` method. */
