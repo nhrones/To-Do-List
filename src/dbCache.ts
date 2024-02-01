@@ -50,6 +50,11 @@ export async function init() {
    return await hydrate()
 }
 
+export function restoreCache(records: string) {
+   const tasks = JSON.parse(records)
+   todoCache = new Map(tasks)
+}
+
 /** The `remove` method mutates - will call the `persist` method. */
 export function remove(key: string): any {
    let result = todoCache.delete(key)

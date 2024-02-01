@@ -45,6 +45,10 @@ async function init() {
   };
   return await hydrate();
 }
+function restoreCache(records) {
+  const tasks2 = JSON.parse(records);
+  todoCache = new Map(tasks2);
+}
 var get = (key) => {
   return todoCache.get(key);
 };
@@ -230,15 +234,29 @@ function refreshDisplay() {
 
 // src/export.ts
 function backupData() {
-  const data = {};
-  console.info("todo export data: ", data);
-  localStorage.setItem("todo_backup", JSON.stringify(data, null, 2));
-  const raw = localStorage.getItem("todo_backup") ?? "";
-  console.info("raw from localStorage: ", raw);
+  const jsonData = JSON.stringify(Array.from(todoCache.entries()));
+  const link = document.createElement("a");
+  const file = new Blob([jsonData], { type: "application/json" });
+  link.href = URL.createObjectURL(file);
+  link.download = "backup.json";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+function restoreData() {
+  const fileload = document.getElementById("fileload");
+  fileload.click();
+  fileload.addEventListener("change", function() {
+    let reader = new FileReader();
+    reader.onload = function() {
+      restoreCache(reader.result);
+    };
+    reader.readAsText(this.files[0]);
+  });
 }
 
 // src/dom.ts
-var backupbtn = $("backupbtn");
+var backupBtn = $("backupbtn");
+var restoreBtn = $("restorebtn");
 var todoInput = $("todoInput");
 var todoCount = $("todoCount");
 var todoList = $("todoList");
@@ -279,9 +297,14 @@ async function init2() {
     event.preventDefault();
     popupDialog.close();
   });
-  on(backupbtn, "click", () => {
+  on(backupBtn, "click", () => {
     backupData();
-    popupText.textContent = `All tasks persisted to localStorage!`;
+    popupText.textContent = `All tasks backed up!`;
+    popupDialog.showModal();
+  });
+  on(restoreBtn, "click", () => {
+    restoreData();
+    popupText.textContent = `All tasks restored!`;
     popupDialog.showModal();
   });
   refreshDisplay();

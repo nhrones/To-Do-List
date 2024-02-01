@@ -2,11 +2,12 @@
 /// <reference lib="dom" />
 import { addTask, refreshDisplay } from './tasks.ts'
 import { deleteCompleted, initDB, getTasks } from './db.ts';
-import { backupData } from './export.ts'
+import { backupData, restoreData } from './export.ts'
 import { $, on } from './utils.ts'
 
 /* create references for all UI elements */
-export const backupbtn = $("backupbtn") as HTMLButtonElement;
+export const backupBtn = $("backupbtn") as HTMLButtonElement;
+export const restoreBtn = $("restorebtn") as HTMLButtonElement;
 export const todoInput = $("todoInput") as HTMLInputElement;
 export const todoCount = $("todoCount") as HTMLElement;
 export const todoList = $("todoList") as HTMLElement;
@@ -27,7 +28,7 @@ export let currentTopic = "topics"
 export async function init() {
 
    // initialize the local DB cache
-   await initDB() 
+   await initDB()
 
    // todo input keydown handler
    on(todoInput, "keydown", function (event: any) {
@@ -70,10 +71,18 @@ export async function init() {
    })
 
    // backup button click handler
-   on(backupbtn, 'click', () => {
+   on(backupBtn, 'click', () => {
       backupData()
-      popupText.textContent = `All tasks persisted to localStorage!`
+      popupText.textContent = `All tasks backed up!`
       popupDialog.showModal()
+   })
+
+   // backup button click handler
+   on(restoreBtn, 'click', () => {
+      restoreData()
+      popupText.textContent = `All tasks restored!`
+      popupDialog.showModal()
+
    })
 
    // initial display refresh
