@@ -18,7 +18,7 @@ To edit a task, just click on it.
 An editable multiline TextArea will allow in place edits.    
 All edits are auto-saved on 'blur'.
 
-![Alt text](./media/rui.png)
+![Alt text](./media/edit.png)
 
 Each task has a `completed` checkBox.    
 The `Remove Completed` button on the bottom-right will delete any _checked_ tasks.    
