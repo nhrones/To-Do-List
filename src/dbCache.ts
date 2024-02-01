@@ -71,6 +71,7 @@ export const get = (key: string) => {
 }
 function confirmRefresh() {
    let text = "Topics Changed!\nRefresh?";
+    //TODO replace this with a dialog
    if (confirm(text) == true) {
       window.location.reload();
    }
@@ -78,7 +79,7 @@ function confirmRefresh() {
 
 /** The `set` method mutates - will call the `persist` method. */
 export function set(key: string, value: any, topicChanged = false) {
-   if (topicChanged) confirmRefresh();
+   if (topicChanged) confirmRefresh(); 
    todoCache.set(key, value)
    persist()
 }
