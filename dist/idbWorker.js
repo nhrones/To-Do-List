@@ -31,9 +31,10 @@ idbChannel.onmessage = function (evt) {
          });
          break;
       case "GET":
-         console.log('Worker GET: ', key)
-         get(key).then((val) => {
-            post(txID, null, val);
+         //console.log('Worker GET: ', key)
+         get(key).then((result) => {
+            //console.info(result)
+            post(txID, null, result);
          }).catch((_e) => {
             post(txID, "error getting - " + key, null);
          });
@@ -44,7 +45,6 @@ idbChannel.onmessage = function (evt) {
          console.error(errMsg);
       }
          break;
-
    }
 }
 

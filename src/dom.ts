@@ -11,7 +11,7 @@ export const todoInput = $("todoInput") as HTMLInputElement;
 export const todoCount = $("todoCount") as HTMLElement;
 export const todoList = $("todoList") as HTMLElement;
 export const deleteCompletedBtn = $("deletecompleted") as HTMLElement;
-export const topicSelect = $('topics') as HTMLSelectElement;
+export const topicSelect = $('topicselect') as HTMLSelectElement;
 export const closebtn = $('closebtn') as HTMLButtonElement;
 export const popupDialog = $('popupDialog') as HTMLDialogElement;
 export const popupText = $("popup_text") as HTMLElement;
@@ -45,7 +45,6 @@ export async function init() {
 
    // close button click handler
    on(closebtn, 'click', () => {
-      console.log(`closebtn ${location.href}`)
       window.open(location.href, "_self", "");
       self.close()
    })
@@ -54,6 +53,11 @@ export async function init() {
    on(deleteCompletedBtn, "click", () => {
       deleteCompleted()
       refreshDisplay();
+   });
+
+   on(popupDialog, 'click', (event: Event) => {
+      event.preventDefault();
+      popupDialog.close()
    });
 
    on(popupDialog, 'close', (event: Event) => {

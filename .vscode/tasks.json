@@ -7,7 +7,7 @@
          "command": "build",
       },
       {
-         "label": "RUN",
+         "label": "SERVE",
          "type": "shell",
          "command": "serve",
       },

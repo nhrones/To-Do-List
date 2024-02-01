@@ -45,49 +45,37 @@ export async function init() {
       callbacks.delete(msgID)                   // clean up
       if (callback) callback(error, result)     // execute
    }
-   console.log('---persist.init() calling persist.hydrate()')
+
    // hydrate our todo data 
    return await hydrate()
 }
 
-/** 
- * The `remove` method mutates - will call the `persist` method. 
- */
+/** The `remove` method mutates - will call the `persist` method. */
 export function remove(key: string): any {
    let result = todoCache.delete(key)
    if (result === true) persist()
    return result
 }
 
-/** 
- * The `get` method will not mutate records 
- */
+/** The `get` method will not mutate records */
 export const get = (key: string) => {
-   const tasks = todoCache.get(key)
-   return tasks;
+   return todoCache.get(key)
 }
 
 
-/** 
- * The `set` method mutates - will call the `persist` method. 
- */
+/** The `set` method mutates - will call the `persist` method. */
 export function set(key: string, value: any) {
-   console.info('setting value ', value)
    todoCache.set(key, value)
    persist()
 }
 
 /**
- * hydrate a dataset from a single raw record stored in IndexedDB    
- * hydrating 100,000 objects takes ~ 295ms :      
- *     DB-Fetch: 133.00ms    
- *     JSON.Parse: 145.30ms    
- *     Build-Map: 16.80ms        
+ * hydrate a dataset from a single raw record stored in IndexedDB           
  */
 export async function hydrate() {
 
    // prevent a worker race condition
-   await sleep(100); 
+   await sleep(100);
 
    // make a remote procedure call to get our 'TODO' record
    let result = await request({ procedure: 'GET', key: TODO_KEY, value: '' })
@@ -98,27 +86,27 @@ export async function hydrate() {
       // no data found -- we'll need a minimal 
       // default 'topics' set to start up
       set("topics",
-         [
-            {
-               text: `Topics   
-               Todo App Topics, key = topics`,
-               disabled: false
-             }
-         ]
+      [
+         {
+           text: `Apps   
+      App1, app1
+      App2, app2`,
+           disabled: false
+         },
+         {
+           text: `Topics
+      Todo App Topics, topics`,
+           disabled: false
+         }
+       ]
       )
 
       // a recursive call after setting defaults
       return await hydrate();
    }
 
-   // create a proper records container for our todoCache-Map
-   let records: Iterable<readonly [string, string]> | null | undefined
-
-   // we expect a string - so we''l need to parse it first
-   if (typeof result === 'string') records = JSON.parse(result)
-
    // load our local cache
-   todoCache = new Map(records)
+   todoCache = new Map(result)
 }
 
 /** 
@@ -128,11 +116,10 @@ export async function hydrate() {
  */
 async function persist() {
 
-   // stringify the complete cache-Map
-   let todoString = JSON.stringify(Array.from(todoCache.entries()))
-
+   // get the complete cache-Map
+   let todoArray = Array.from(todoCache.entries())
    // request remote proceedure to SET the 'TODO' key with the cache-string
-   await request({ procedure: 'SET', key: TODO_KEY, value: todoString })
+   await request({ procedure: 'SET', key: TODO_KEY, value: todoArray })
 }
 
 /** 
@@ -148,6 +135,7 @@ async function persist() {
  * on the worker, we never block the UI 
  */
 export function request(newRequest: DbRpcPackage): Promise<any> {
+
    const txID = nextTxId++
    return new Promise((resolve, reject) => {
       // set promise callback for this id
@@ -155,7 +143,7 @@ export function request(newRequest: DbRpcPackage): Promise<any> {
          if (error) reject(new Error(error.message))
          resolve(result)
       })
-      console.log('idbChannel.postMessage ', newRequest.procedure)
+
       idbChannel.postMessage({ txID: txID, payload: newRequest })
    })
 }

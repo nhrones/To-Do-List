@@ -11,8 +11,10 @@ import { taskTemplate } from './templates.ts'
 export function addTask() {
    const newTask = todoInput.value.trim();
    if (newTask !== "") {
-      tasks.push({ text: newTask, disabled: false });
-      saveTasks()
+
+      //tasks.push({ text: newTask, disabled: false });
+      tasks.unshift({ text: newTask, disabled: false });
+      saveTasks('tasks.addTask - ' + newTask)
       todoInput.value = "";
       todoInput.focus();
       refreshDisplay();
@@ -53,7 +55,7 @@ export function refreshDisplay() {
                const updatedText = editElement.value.trim();
                if (updatedText.length > 0) {
                   tasks[index].text = updatedText;
-                  saveTasks()
+                  saveTasks('on(editElement, "blur"')
                }
                refreshDisplay();
             });
@@ -64,7 +66,7 @@ export function refreshDisplay() {
             e.preventDefault()
             const index = e.target.dataset.index
             tasks[index].disabled = !tasks[index].disabled;
-            saveTasks()
+            saveTasks('todo-checkbox change')
          });
          todoList.appendChild(p);
       });

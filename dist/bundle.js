@@ -8,26 +8,18 @@ function sleep(ms) {
 }
 
 // src/selectBuilder.ts
-function buildSelectElement(props) {
-  const selectElement = $("topics");
-  for (const prop in props) {
-    if (props.hasOwnProperty(prop)) {
-      addOptionGroup(selectElement, prop, props[prop]);
-    }
-  }
-}
-function addOptionGroup(selectElement, label, options) {
+function addOptionGroup(label, options) {
   const len = options.length;
   let optionElement;
   const optionGroup = document.createElement("optgroup");
   optionGroup.label = label;
   for (let i = 0; i < len; ++i) {
     optionElement = document.createElement("option");
-    optionElement.textContent = options[i].title;
-    optionElement.value = options[i].key;
+    optionElement.textContent = options[i].title || "fuck";
+    optionElement.value = options[i].key || "fuck";
     optionGroup.appendChild(optionElement);
   }
-  selectElement.appendChild(optionGroup);
+  topicSelect.appendChild(optionGroup);
   return optionGroup;
 }
 
@@ -51,15 +43,12 @@ async function init() {
     if (callback)
       callback(error, result);
   };
-  console.log("---persist.init() calling persist.hydrate()");
   return await hydrate();
 }
 var get = (key) => {
-  const tasks2 = todoCache.get(key);
-  return tasks2;
+  return todoCache.get(key);
 };
 function set(key, value) {
-  console.info("setting value ", value);
   todoCache.set(key, value);
   persist();
 }
@@ -71,22 +60,25 @@ async function hydrate() {
       "topics",
       [
         {
-          text: `Topics   
-               Todo App Topics, key = topics`,
+          text: `Apps   
+      App1, app1
+      App2, app2`,
+          disabled: false
+        },
+        {
+          text: `Topics
+      Todo App Topics, topics`,
           disabled: false
         }
       ]
     );
     return await hydrate();
   }
-  let records;
-  if (typeof result === "string")
-    records = JSON.parse(result);
-  todoCache = new Map(records);
+  todoCache = new Map(result);
 }
 async function persist() {
-  let todoString = JSON.stringify(Array.from(todoCache.entries()));
-  await request({ procedure: "SET", key: TODO_KEY, value: todoString });
+  let todoArray = Array.from(todoCache.entries());
+  await request({ procedure: "SET", key: TODO_KEY, value: todoArray });
 }
 function request(newRequest) {
   const txID = nextTxId++;
@@ -96,7 +88,6 @@ function request(newRequest) {
         reject(new Error(error.message));
       resolve(result);
     });
-    console.log("idbChannel.postMessage ", newRequest.procedure);
     idbChannel.postMessage({ txID, payload: newRequest });
   });
 }
@@ -110,69 +101,44 @@ var tasks = [];
 var keyName = "";
 function getTasks(key = "") {
   keyName = key;
-  if (key === "topics")
-    console.log(`============ getTasks topics`);
   if (key.length) {
     let data = get(key) ?? [];
-    if (key === "topics") {
-      console.info(`============ getTasks topics:`, data);
-    }
     if (data === null) {
       console.log(`No data found for ${keyName}`);
       data = [];
     }
-    if (typeof data === "string") {
-      console.info(`============ getTasks topics was string`);
-      tasks = JSON.parse(data) || [];
-    } else {
-      console.info(`============ getTasks topics was object`);
-      tasks = data;
-    }
+    tasks = data;
     refreshDisplay();
   }
 }
 var buildTopics = () => {
-  console.log("---db.buildTopics()");
-  const data = get("topics");
-  const parsedTopics = parseTopics(data);
-  if (parsedTopics != null) {
-    for (let index = 0; index < parsedTopics.length; index++) {
-      try {
-        const options = JSON.parse(`${parsedTopics[index].text}`);
-        buildSelectElement(options);
-      } catch (_err) {
-        console.log("error parsing: ", parsedTopics[index].text);
-      }
-    }
-  } else {
-    console.log(`No topics found!`);
+  let data = get("topics");
+  for (let i = 0; i < data.length; i++) {
+    const element = data[i];
+    const parsedTopics = parseTopics(data[i]);
+    addOptionGroup(parsedTopics.group, parsedTopics.entries);
   }
 };
 function parseTopics(topics) {
-  console.log("---db.parseTopics()");
-  const parsedTopics = typeof topics === "string" ? JSON.parse(topics) : topics;
-  for (let index = 0; index < parsedTopics.length; index++) {
-    const thisTopic = parsedTopics[index];
-    const txt = thisTopic.text;
-    const lines = txt.split("\n");
-    const topic = lines[0].trim();
-    let newText = `{"${topic}":[`;
-    for (let i = 1; i < lines.length; i++) {
-      const element = lines[i];
-      const items = element.split(",");
-      const title = items[0];
-      let k = items[1].split("=");
-      const keyName2 = k[1].trim();
-      newText += `{ "title": "${title}", "key": "${keyName2}" },`;
-    }
-    newText = newText.substring(0, newText.length - 1) + `] }`;
-    parsedTopics[index].text = newText;
+  const topicObject = { group: "", entries: [] };
+  const thisTopic = topics;
+  const txt = thisTopic.text;
+  const lines = txt.split("\n");
+  topicObject.group = lines[0].trim();
+  for (let i = 1; i < lines.length; i++) {
+    let newObj = { title: "", key: "" };
+    const element = lines[i];
+    const items = element.split(",");
+    const title = items[0];
+    const keyName2 = items[1].trim();
+    newObj.title = title;
+    newObj.key = keyName2;
+    topicObject.entries[i - 1] = newObj;
   }
-  return parsedTopics;
+  return topicObject;
 }
-function saveTasks() {
-  const value = JSON.stringify(tasks, null, 2);
-  set(keyName, value);
+function saveTasks(from) {
+  set(keyName, tasks);
 }
 function deleteCompleted() {
   const savedtasks = [];
@@ -185,7 +151,7 @@ function deleteCompleted() {
     }
   });
   tasks = savedtasks;
-  saveTasks();
+  saveTasks("delete completed");
   popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
@@ -213,8 +179,8 @@ function taskTemplate(index, item) {
 function addTask() {
   const newTask = todoInput.value.trim();
   if (newTask !== "") {
-    tasks.push({ text: newTask, disabled: false });
-    saveTasks();
+    tasks.unshift({ text: newTask, disabled: false });
+    saveTasks("tasks.addTask - " + newTask);
     todoInput.value = "";
     todoInput.focus();
     refreshDisplay();
@@ -245,7 +211,7 @@ function refreshDisplay() {
           const updatedText = editElement.value.trim();
           if (updatedText.length > 0) {
             tasks[index].text = updatedText;
-            saveTasks();
+            saveTasks('on(editElement, "blur"');
           }
           refreshDisplay();
         });
@@ -254,7 +220,7 @@ function refreshDisplay() {
         e.preventDefault();
         const index2 = e.target.dataset.index;
         tasks[index2].disabled = !tasks[index2].disabled;
-        saveTasks();
+        saveTasks("todo-checkbox change");
       });
       todoList.appendChild(p);
     });
@@ -277,7 +243,7 @@ var todoInput = $("todoInput");
 var todoCount = $("todoCount");
 var todoList = $("todoList");
 var deleteCompletedBtn = $("deletecompleted");
-var topicSelect = $("topics");
+var topicSelect = $("topicselect");
 var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
@@ -295,13 +261,16 @@ async function init2() {
     getTasks(currentTopic);
   });
   on(closebtn, "click", () => {
-    console.log(`closebtn ${location.href}`);
     window.open(location.href, "_self", "");
     self.close();
   });
   on(deleteCompletedBtn, "click", () => {
     deleteCompleted();
     refreshDisplay();
+  });
+  on(popupDialog, "click", (event) => {
+    event.preventDefault();
+    popupDialog.close();
   });
   on(popupDialog, "close", (event) => {
     event.preventDefault();
