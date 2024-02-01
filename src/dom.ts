@@ -34,7 +34,7 @@ export async function init() {
    on(todoInput, "keydown", function (event: any) {
       if (event.key === "Enter") {
          event.preventDefault();
-         addTask();
+         addTask((currentTopic === 'topics'));
       }
    })
 

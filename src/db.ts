@@ -1,6 +1,6 @@
 import { addOptionGroup } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
-import { popupText, popupDialog } from './dom.ts'
+import { popupText, popupDialog, currentTopic } from './dom.ts'
 import * as Cache from './dbCache.ts'
 
 export const TodoTasks: Map<string, any[]> = new Map()
@@ -89,8 +89,8 @@ return topicObject
 }
 
 /** Save all tasks */
-export function saveTasks(from: string) {
-   Cache.set(keyName, tasks)
+export function saveTasks(topicChanged?: boolean) {
+   Cache.set(keyName, tasks, topicChanged)
 }
 
 /** 
@@ -107,7 +107,7 @@ export function deleteCompleted() {
       }
    })
    tasks = savedtasks
-   saveTasks('delete completed');
+   saveTasks((currentTopic === 'topics'));
    popupText.textContent = `Removed ${numberDeleted} tasks!`
    popupDialog.showModal()
 }

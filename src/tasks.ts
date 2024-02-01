@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { on } from './utils.ts'
-import { todoCount, todoInput, todoList } from './dom.ts'
+import { currentTopic, todoCount, todoInput, todoList } from './dom.ts'
 import { tasks, saveTasks } from './db.ts';
 import { taskTemplate } from './templates.ts'
 
@@ -8,13 +8,11 @@ import { taskTemplate } from './templates.ts'
  * Add a new task
  * @returns void
  */
-export function addTask() {
+export function addTask(topics = false) {
    const newTask = todoInput.value.trim();
    if (newTask !== "") {
-
-      //tasks.push({ text: newTask, disabled: false });
       tasks.unshift({ text: newTask, disabled: false });
-      saveTasks('tasks.addTask - ' + newTask)
+      saveTasks(topics)
       todoInput.value = "";
       todoInput.focus();
       refreshDisplay();
@@ -55,7 +53,7 @@ export function refreshDisplay() {
                const updatedText = editElement.value.trim();
                if (updatedText.length > 0) {
                   tasks[index].text = updatedText;
-                  saveTasks('on(editElement, "blur"')
+                  saveTasks((currentTopic === 'topics'))
                }
                refreshDisplay();
             });
@@ -66,7 +64,7 @@ export function refreshDisplay() {
             e.preventDefault()
             const index = e.target.dataset.index
             tasks[index].disabled = !tasks[index].disabled;
-            saveTasks('todo-checkbox change')
+            saveTasks(false)
          });
          todoList.appendChild(p);
       });

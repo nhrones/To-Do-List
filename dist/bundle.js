@@ -53,7 +53,15 @@ function restoreCache(records) {
 var get = (key) => {
   return todoCache.get(key);
 };
-function set(key, value) {
+function confirmRefresh() {
+  let text = "Topics Changed!\nRefresh?";
+  if (confirm(text) == true) {
+    window.location.reload();
+  }
+}
+function set(key, value, topicChanged = false) {
+  if (topicChanged)
+    confirmRefresh();
   todoCache.set(key, value);
   persist();
 }
@@ -142,8 +150,8 @@ function parseTopics(topics) {
   }
   return topicObject;
 }
-function saveTasks(from) {
-  set(keyName, tasks);
+function saveTasks(topicChanged) {
+  set(keyName, tasks, topicChanged);
 }
 function deleteCompleted() {
   const savedtasks = [];
@@ -156,7 +164,7 @@ function deleteCompleted() {
     }
   });
   tasks = savedtasks;
-  saveTasks("delete completed");
+  saveTasks(currentTopic === "topics");
   popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
@@ -181,11 +189,11 @@ function taskTemplate(index, item) {
 }
 
 // src/tasks.ts
-function addTask() {
+function addTask(topics = false) {
   const newTask = todoInput.value.trim();
   if (newTask !== "") {
     tasks.unshift({ text: newTask, disabled: false });
-    saveTasks("tasks.addTask - " + newTask);
+    saveTasks(topics);
     todoInput.value = "";
     todoInput.focus();
     refreshDisplay();
@@ -216,7 +224,7 @@ function refreshDisplay() {
           const updatedText = editElement.value.trim();
           if (updatedText.length > 0) {
             tasks[index].text = updatedText;
-            saveTasks('on(editElement, "blur"');
+            saveTasks(currentTopic === "topics");
           }
           refreshDisplay();
         });
@@ -225,7 +233,7 @@ function refreshDisplay() {
         e.preventDefault();
         const index2 = e.target.dataset.index;
         tasks[index2].disabled = !tasks[index2].disabled;
-        saveTasks("todo-checkbox change");
+        saveTasks(false);
       });
       todoList.appendChild(p);
     });
@@ -250,6 +258,7 @@ function restoreData() {
     let reader = new FileReader();
     reader.onload = function() {
       restoreCache(reader.result);
+      window.location.reload();
     };
     reader.readAsText(this.files[0]);
   });
@@ -272,7 +281,7 @@ async function init2() {
   on(todoInput, "keydown", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      addTask();
+      addTask(currentTopic === "topics");
     }
   });
   on(topicSelect, "change", () => {

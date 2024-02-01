@@ -1,4 +1,6 @@
 import { sleep } from './utils.ts'
+import { currentTopic } from './dom.ts'
+
 export type callback = (error: any, result: any) => void
 
 export type DbRpcPackage = {
@@ -67,10 +69,16 @@ export function remove(key: string): any {
 export const get = (key: string) => {
    return todoCache.get(key)
 }
-
+function confirmRefresh() {
+   let text = "Topics Changed!\nRefresh?";
+   if (confirm(text) == true) {
+      window.location.reload();
+   }
+ }
 
 /** The `set` method mutates - will call the `persist` method. */
-export function set(key: string, value: any) {
+export function set(key: string, value: any, topicChanged = false) {
+   if (topicChanged) confirmRefresh();
    todoCache.set(key, value)
    persist()
 }
