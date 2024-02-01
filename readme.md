@@ -51,10 +51,14 @@ Any key change may cause orphaned db-tasks. I recomment doing a backup prior to 
 ![Alt text](./media/topics.png)
 
 This version uses IndexedDB in a WebWorker.
-
-If something breaks, you can restore from a backup.  
-If you haven't backed up, you can delete the IDB file,   
-and on next start/refresh a blank template will auto install.     
+## Backups
+The backup and restore buttons allow backing up the data to a json file.    
+I like to do daily backups to keep a historical record.    
+(you can restore any backup, any time!).    
+You could use the backups as an organization feature; work - personal? 
+On first start, a blank template will auto install.    
+At any time, you could delete the IDB file, and this     
+default will refresh an idb with a default topic list.     
 
 
 ## Deno Desktop App
