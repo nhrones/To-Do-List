@@ -69,6 +69,7 @@ export function remove(key: string): any {
 export const get = (key: string) => {
    return todoCache.get(key)
 }
+
 function confirmRefresh() {
    let text = "Topics Changed!\nRefresh?";
     //TODO replace this with a dialog

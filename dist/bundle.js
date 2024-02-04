@@ -1,11 +1,14 @@
 // deno-lint-ignore-file
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/utils.ts
-var $ = (id) => document.getElementById(id);
-var on = (el, event, callback) => el.addEventListener(event, callback);
+var $ = /* @__PURE__ */ __name((id) => document.getElementById(id), "$");
+var on = /* @__PURE__ */ __name((el, event, callback) => el.addEventListener(event, callback), "on");
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms || 1e3));
 }
+__name(sleep, "sleep");
 
 // src/selectBuilder.ts
 function addOptionGroup(label, options) {
@@ -22,6 +25,7 @@ function addOptionGroup(label, options) {
   topicSelect.appendChild(optionGroup);
   return optionGroup;
 }
+__name(addOptionGroup, "addOptionGroup");
 
 // src/dbCache.ts
 var todoCache = /* @__PURE__ */ new Map();
@@ -45,26 +49,30 @@ async function init() {
   };
   return await hydrate();
 }
+__name(init, "init");
 function restoreCache(records) {
   const tasks2 = JSON.parse(records);
   todoCache = new Map(tasks2);
   persist();
 }
-var get = (key) => {
+__name(restoreCache, "restoreCache");
+var get = /* @__PURE__ */ __name((key) => {
   return todoCache.get(key);
-};
+}, "get");
 function confirmRefresh() {
   let text = "Topics Changed!\nRefresh?";
   if (confirm(text) == true) {
     window.location.reload();
   }
 }
+__name(confirmRefresh, "confirmRefresh");
 function set(key, value, topicChanged = false) {
   if (topicChanged)
     confirmRefresh();
   todoCache.set(key, value);
   persist();
 }
+__name(set, "set");
 async function hydrate() {
   await sleep(100);
   let result = await request({ procedure: "GET", key: TODO_KEY, value: "" });
@@ -89,10 +97,12 @@ async function hydrate() {
   }
   todoCache = new Map(result);
 }
+__name(hydrate, "hydrate");
 async function persist() {
   let todoArray = Array.from(todoCache.entries());
   await request({ procedure: "SET", key: TODO_KEY, value: todoArray });
 }
+__name(persist, "persist");
 function request(newRequest) {
   const txID = nextTxId++;
   return new Promise((resolve, reject) => {
@@ -104,12 +114,14 @@ function request(newRequest) {
     idbChannel.postMessage({ txID, payload: newRequest });
   });
 }
+__name(request, "request");
 
 // src/db.ts
 async function initDB() {
   await init();
   buildTopics();
 }
+__name(initDB, "initDB");
 var tasks = [];
 var keyName = "";
 function getTasks(key = "") {
@@ -124,14 +136,15 @@ function getTasks(key = "") {
     refreshDisplay();
   }
 }
-var buildTopics = () => {
+__name(getTasks, "getTasks");
+var buildTopics = /* @__PURE__ */ __name(() => {
   let data = get("topics");
   for (let i = 0; i < data.length; i++) {
     const element = data[i];
     const parsedTopics = parseTopics(data[i]);
     addOptionGroup(parsedTopics.group, parsedTopics.entries);
   }
-};
+}, "buildTopics");
 function parseTopics(topics) {
   const topicObject = { group: "", entries: [] };
   const thisTopic = topics;
@@ -150,9 +163,11 @@ function parseTopics(topics) {
   }
   return topicObject;
 }
+__name(parseTopics, "parseTopics");
 function saveTasks(topicChanged) {
   set(keyName, tasks, topicChanged);
 }
+__name(saveTasks, "saveTasks");
 function deleteCompleted() {
   const savedtasks = [];
   let numberDeleted = 0;
@@ -168,6 +183,7 @@ function deleteCompleted() {
   popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
+__name(deleteCompleted, "deleteCompleted");
 
 // src/templates.ts
 function taskTemplate(index, item) {
@@ -187,6 +203,7 @@ function taskTemplate(index, item) {
    </div>
  `;
 }
+__name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
 function addTask(topics = false) {
@@ -199,6 +216,7 @@ function addTask(topics = false) {
     refreshDisplay();
   }
 }
+__name(addTask, "addTask");
 function refreshDisplay() {
   todoList.innerHTML = "";
   if (tasks && tasks.length > 0) {
@@ -240,6 +258,7 @@ function refreshDisplay() {
   }
   todoCount.textContent = "" + tasks.length;
 }
+__name(refreshDisplay, "refreshDisplay");
 
 // src/export.ts
 function backupData() {
@@ -251,6 +270,7 @@ function backupData() {
   link.click();
   URL.revokeObjectURL(link.href);
 }
+__name(backupData, "backupData");
 function restoreData() {
   const fileload = document.getElementById("fileload");
   fileload.click();
@@ -263,6 +283,7 @@ function restoreData() {
     reader.readAsText(this.files[0]);
   });
 }
+__name(restoreData, "restoreData");
 
 // src/dom.ts
 var backupBtn = $("backupbtn");
@@ -309,16 +330,13 @@ async function init2() {
   });
   on(backupBtn, "click", () => {
     backupData();
-    popupText.textContent = `All tasks backed up!`;
-    popupDialog.showModal();
   });
   on(restoreBtn, "click", () => {
     restoreData();
-    popupText.textContent = `All tasks restored!`;
-    popupDialog.showModal();
   });
   refreshDisplay();
 }
+__name(init2, "init");
 
 // src/main.ts
 await init2();

@@ -73,15 +73,15 @@ export async function init() {
    // backup button click handler
    on(backupBtn, 'click', () => {
       backupData()
-      popupText.textContent = `All tasks backed up!`
-      popupDialog.showModal()
+      //popupText.textContent = `All tasks backed up!`
+      //popupDialog.showModal()
    })
 
-   // backup button click handler
+   // restore button click handler
    on(restoreBtn, 'click', () => {
       restoreData()
-      popupText.textContent = `All tasks restored!`
-      popupDialog.showModal()
+      //popupText.textContent = `All tasks restored!`
+      //popupDialog.showModal()
 
    })
 
