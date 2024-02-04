@@ -36,7 +36,6 @@ idbWorker.onerror = (event) => {
   console.log("There is an error with your worker!");
 };
 var idbChannel = new BroadcastChannel("IDB");
-var TODO_KEY = "TODO";
 async function init() {
   idbChannel.onmessage = (evt) => {
     const { msgID, error, result } = evt.data;
@@ -59,18 +58,11 @@ __name(restoreCache, "restoreCache");
 var get = /* @__PURE__ */ __name((key) => {
   return todoCache.get(key);
 }, "get");
-function confirmRefresh() {
-  let text = "Topics Changed!\nRefresh?";
-  if (confirm(text) == true) {
-    window.location.reload();
-  }
-}
-__name(confirmRefresh, "confirmRefresh");
 function set(key, value, topicChanged = false) {
-  if (topicChanged)
-    confirmRefresh();
   todoCache.set(key, value);
   persist();
+  if (topicChanged)
+    window.location.reload();
 }
 __name(set, "set");
 async function hydrate() {
@@ -179,9 +171,9 @@ function deleteCompleted() {
     }
   });
   tasks = savedtasks;
-  saveTasks(currentTopic === "topics");
-  popupText.textContent = `Removed ${numberDeleted} tasks!`;
-  popupDialog.showModal();
+  saveTasks(currentTopic2 === "topics");
+  popupText2.textContent = `Removed ${numberDeleted} tasks!`;
+  popupDialog2.showModal();
 }
 __name(deleteCompleted, "deleteCompleted");
 
@@ -206,15 +198,15 @@ function taskTemplate(index, item) {
 __name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
-function addTask(topics = false) {
-  const newTask = todoInput.value.trim();
-  if (newTask !== "") {
-    tasks.unshift({ text: newTask, disabled: false });
-    saveTasks(topics);
-    todoInput.value = "";
-    todoInput.focus();
-    refreshDisplay();
-  }
+function addTask(newTask, topics = false) {
+  if (topics)
+    newTask = `${newTask}
+      newTopic, newKey`;
+  tasks.unshift({ text: newTask, disabled: false });
+  saveTasks(topics);
+  taskInput.value = "";
+  taskInput.focus();
+  refreshDisplay();
 }
 __name(addTask, "addTask");
 function refreshDisplay() {
@@ -242,7 +234,7 @@ function refreshDisplay() {
           const updatedText = editElement.value.trim();
           if (updatedText.length > 0) {
             tasks[index].text = updatedText;
-            saveTasks(currentTopic === "topics");
+            saveTasks(currentTopic2 === "topics");
           }
           refreshDisplay();
         });
@@ -288,26 +280,36 @@ __name(restoreData, "restoreData");
 // src/dom.ts
 var backupBtn = $("backupbtn");
 var restoreBtn = $("restorebtn");
-var todoInput = $("todoInput");
+var taskInput = $("taskInput");
 var todoCount = $("todoCount");
 var todoList = $("todoList");
 var deleteCompletedBtn = $("deletecompleted");
 var topicSelect = $("topicselect");
+var dbSelect = $("dbselect");
 var closebtn = $("closebtn");
-var popupDialog = $("popupDialog");
-var popupText = $("popup_text");
-var currentTopic = "topics";
+var popupDialog2 = $("popupDialog");
+var popupText2 = $("popup_text");
+var currentTopic2 = "topics";
+var TODO_KEY = "TODO";
 async function init2() {
   await initDB();
-  on(todoInput, "keydown", function(event) {
+  on(taskInput, "keydown", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      addTask(currentTopic === "topics");
+      const tc = taskInput.value;
+      if (tc.length > 0) {
+        addTask(tc, currentTopic2 === "topics");
+      }
     }
   });
   on(topicSelect, "change", () => {
-    currentTopic = topicSelect.value.toLowerCase();
-    getTasks(currentTopic);
+    currentTopic2 = topicSelect.value.toLowerCase();
+    getTasks(currentTopic2);
+  });
+  dbSelect;
+  on(dbSelect, "change", () => {
+    TODO_KEY = topicSelect.value.toLowerCase();
+    getTasks(currentTopic2);
   });
   on(closebtn, "click", () => {
     window.open(location.href, "_self", "");
@@ -317,16 +319,16 @@ async function init2() {
     deleteCompleted();
     refreshDisplay();
   });
-  on(popupDialog, "click", (event) => {
+  on(popupDialog2, "click", (event) => {
     event.preventDefault();
-    popupDialog.close();
+    popupDialog2.close();
   });
-  on(popupDialog, "close", (event) => {
+  on(popupDialog2, "close", (event) => {
     event.preventDefault();
   });
-  on(popupDialog, "keyup", (event) => {
+  on(popupDialog2, "keyup", (event) => {
     event.preventDefault();
-    popupDialog.close();
+    popupDialog2.close();
   });
   on(backupBtn, "click", () => {
     backupData();

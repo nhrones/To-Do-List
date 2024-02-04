@@ -8,18 +8,19 @@ import { $, on } from './utils.ts'
 /* create references for all UI elements */
 export const backupBtn = $("backupbtn") as HTMLButtonElement;
 export const restoreBtn = $("restorebtn") as HTMLButtonElement;
-export const todoInput = $("todoInput") as HTMLInputElement;
+export const taskInput = $("taskInput") as HTMLInputElement;
 export const todoCount = $("todoCount") as HTMLElement;
 export const todoList = $("todoList") as HTMLElement;
 export const deleteCompletedBtn = $("deletecompleted") as HTMLElement;
 export const topicSelect = $('topicselect') as HTMLSelectElement;
+export const dbSelect = $('dbselect') as HTMLSelectElement;
 export const closebtn = $('closebtn') as HTMLButtonElement;
 export const popupDialog = $('popupDialog') as HTMLDialogElement;
 export const popupText = $("popup_text") as HTMLElement;
 
 // topic name
 export let currentTopic = "topics"
-
+export let TODO_KEY = 'TODO'
 /**
  * initialize all UI and event handlers    
  * called once on start up
@@ -31,16 +32,25 @@ export async function init() {
    await initDB()
 
    // todo input keydown handler
-   on(todoInput, "keydown", function (event: any) {
+   on(taskInput, "keydown", function (event: any) {
       if (event.key === "Enter") {
          event.preventDefault();
-         addTask((currentTopic === 'topics'));
+         const tc = taskInput.value as string
+         if (tc.length > 0) {
+            addTask(tc, currentTopic === 'topics');
+         }
       }
    })
 
    // topic select change handler
    on(topicSelect, 'change', () => {
       currentTopic = topicSelect.value.toLowerCase()
+      getTasks(currentTopic)
+   })
+   dbSelect
+   // topic select change handler
+   on(dbSelect, 'change', () => {
+      TODO_KEY = topicSelect.value.toLowerCase()
       getTasks(currentTopic)
    })
 
@@ -73,16 +83,11 @@ export async function init() {
    // backup button click handler
    on(backupBtn, 'click', () => {
       backupData()
-      //popupText.textContent = `All tasks backed up!`
-      //popupDialog.showModal()
    })
 
    // restore button click handler
    on(restoreBtn, 'click', () => {
       restoreData()
-      //popupText.textContent = `All tasks restored!`
-      //popupDialog.showModal()
-
    })
 
    // initial display refresh

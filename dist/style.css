@@ -175,7 +175,7 @@ textarea {
 }
 
 #closebtn {
-   margin-left: 170px;
+   margin-left: 0px;
    padding: 5px 10px 5px 10px;
    font-size: 1rem;
    resize: none;

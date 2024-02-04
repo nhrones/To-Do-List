@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { on } from './utils.ts'
-import { currentTopic, todoCount, todoInput, todoList } from './dom.ts'
+import { currentTopic, todoCount, taskInput, todoList } from './dom.ts'
 import { tasks, saveTasks } from './db.ts';
 import { taskTemplate } from './templates.ts'
 
@@ -8,15 +8,15 @@ import { taskTemplate } from './templates.ts'
  * Add a new task
  * @returns void
  */
-export function addTask(topics = false) {
-   const newTask = todoInput.value.trim();
-   if (newTask !== "") {
-      tasks.unshift({ text: newTask, disabled: false });
-      saveTasks(topics)
-      todoInput.value = "";
-      todoInput.focus();
-      refreshDisplay();
-   }
+export function addTask(newTask: string, topics = false) {
+   if (topics) newTask = `${newTask}
+      newTopic, newKey`;
+
+   tasks.unshift({ text: newTask, disabled: false });
+   saveTasks(topics)
+   taskInput.value = "";
+   taskInput.focus();
+   refreshDisplay();
 }
 
 /**
@@ -25,7 +25,7 @@ export function addTask(topics = false) {
  */
 export function refreshDisplay() {
    todoList.innerHTML = "";
-   if ( tasks && tasks.length > 0 ) {
+   if (tasks && tasks.length > 0) {
 
       tasks.forEach((item, index) => {
          const p = document.createElement("p");

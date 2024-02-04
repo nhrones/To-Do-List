@@ -1,5 +1,5 @@
 import { restoreCache, todoCache } from './dbCache.ts'
-//TODO fix export to json
+
 /**
  * export data from persitence
  * @returns void - calls saveDataFile()

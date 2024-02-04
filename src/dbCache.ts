@@ -1,5 +1,5 @@
 import { sleep } from './utils.ts'
-import { currentTopic } from './dom.ts'
+import { TODO_KEY, currentTopic, popupText, popupDialog,  } from './dom.ts'
 
 export type callback = (error: any, result: any) => void
 
@@ -25,7 +25,7 @@ idbWorker.onerror = (event) => {
 
 const idbChannel = new BroadcastChannel("IDB")
 
-const TODO_KEY = 'TODO'
+
 
 /** 
  * IDB init     
@@ -70,19 +70,11 @@ export const get = (key: string) => {
    return todoCache.get(key)
 }
 
-function confirmRefresh() {
-   let text = "Topics Changed!\nRefresh?";
-    //TODO replace this with a dialog
-   if (confirm(text) == true) {
-      window.location.reload();
-   }
- }
-
 /** The `set` method mutates - will call the `persist` method. */
 export function set(key: string, value: any, topicChanged = false) {
-   if (topicChanged) confirmRefresh(); 
    todoCache.set(key, value)
    persist()
+   if (topicChanged) window.location.reload();
 }
 
 /**
