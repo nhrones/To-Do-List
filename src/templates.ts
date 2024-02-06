@@ -1,12 +1,11 @@
-// deno-lint-ignore-file no-explicit-any
-
+import { TaskType } from './types.ts'
 /** 
  * build a task element template string
  * @param {number} index an index used in id 
  * @param {object} item the task item
  * @returns {string} a task element template
  */
-export function taskTemplate(index: any, item: any) {
+export function taskTemplate(index: number, item: TaskType) {
    const { disabled, text } = item
    return `
    <div class="todo-container">

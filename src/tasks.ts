@@ -1,8 +1,8 @@
-// deno-lint-ignore-file no-explicit-any
-import { on } from './utils.ts'
-import { currentTopic, todoCount, taskInput, todoList } from './dom.ts'
-import { tasks, saveTasks } from './db.ts';
+
+import { todoCount, taskInput, todoList } from './dom.ts'
+import { saveTasks } from './db.ts';
 import { taskTemplate } from './templates.ts'
+import { DEV, ctx, on } from './context.ts'
 
 /**
  * Add a new task
@@ -12,7 +12,7 @@ export function addTask(newTask: string, topics = false) {
    if (topics) newTask = `${newTask}
       newTopic, newKey`;
 
-   tasks.unshift({ text: newTask, disabled: false });
+   ctx.tasks.unshift({ text: newTask, disabled: false });
    saveTasks(topics)
    taskInput.value = "";
    taskInput.focus();
@@ -24,10 +24,11 @@ export function addTask(newTask: string, topics = false) {
  * @returns void
  */
 export function refreshDisplay() {
-   todoList.innerHTML = "";
-   if (tasks && tasks.length > 0) {
 
-      tasks.forEach((item, index) => {
+   todoList.innerHTML = "";
+   if (ctx.tasks && ctx.tasks.length > 0) {
+
+      ctx.tasks.forEach((item, index) => {
          const p = document.createElement("p");
          p.innerHTML = taskTemplate(index, item)
 
@@ -38,7 +39,7 @@ export function refreshDisplay() {
             if (e.target.type === 'textarea') return;
 
             const todoItem = e.target;
-            const existingText = tasks[index].text;
+            const existingText = ctx.tasks[index].text;
 
             const editElement = document.createElement("textarea");
             editElement.setAttribute("rows", "6");
@@ -52,24 +53,26 @@ export function refreshDisplay() {
             on(editElement, "blur", function () {
                const updatedText = editElement.value.trim();
                if (updatedText.length > 0) {
-                  tasks[index].text = updatedText;
-                  saveTasks((currentTopic === 'topics'))
+                  ctx.tasks[index].text = updatedText;
+                  saveTasks((ctx.currentTopic === 'topics'))
                }
                refreshDisplay();
             });
          })
 
          // handle the `completed` checkbox change event
-         on(p.querySelector(".todo-checkbox"), "change", (e: any) => {
+         on(p.querySelector(".todo-checkbox")!, "change", (e: Event) => {
             e.preventDefault()
+            //@ts-ignore
             const index = e.target.dataset.index
-            tasks[index].disabled = !tasks[index].disabled;
+            ctx.tasks[index].disabled = !ctx.tasks[index].disabled;
             saveTasks(false)
          });
          todoList.appendChild(p);
       });
    }
+   if (DEV) console.log(`tasks.refreshDisplay(72) completed!`)
    // update the task count
-   todoCount.textContent = "" + tasks.length;
+   todoCount.textContent = "" + ctx.tasks.length;
 }
 

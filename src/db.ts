@@ -1,9 +1,8 @@
 import { addOptionGroup } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
-import { popupText, popupDialog, currentTopic } from './dom.ts'
+import { popupText, popupDialog } from './dom.ts'
 import * as Cache from './dbCache.ts'
-
-export const TodoTasks: Map<string, any[]> = new Map()
+import { DEV, ctx } from './context.ts'
 
 
 /**
@@ -11,20 +10,14 @@ export const TodoTasks: Map<string, any[]> = new Map()
  * Hydrates cache data from IDB
  */
 export async function initDB() {
-
+   if (DEV) console.log(`db.initDB(14) awaits Cache.init()!`)
    /** hydrate db */
    await Cache.init()
-
+   if (DEV) console.log(`db.initDB(17) return from Cache.init()!`)
+   if (DEV) console.log(`db.initDB(18) calls buildTopics()!`)
    // assemble the topics drop-down UI
    buildTopics()
-
 }
-
-/** an array of todo tasks to be presented */
-export let tasks: { text: string, disabled: boolean }[] = []
-
-/** the name of a data-key */
-let keyName = ''
 
 /**
  * Retrieve array of tasks from the service     
@@ -32,14 +25,14 @@ let keyName = ''
  * @param {string} key the name of the record to fetch (data-key)
  */
 export function getTasks(key = "") {
-   keyName = key
+   ctx.thisKeyName = key
    if (key.length) {
       let data = Cache.get(key) ?? []
       if (data === null) {
-         console.log(`No data found for ${keyName}`)
+         console.log(`No data found for ${ctx.thisKeyName}`)
          data = []
       }
-      tasks = data
+      ctx.tasks = data
       refreshDisplay();
    }
 }
@@ -47,15 +40,16 @@ export function getTasks(key = "") {
 /**
  * build a set of select options
  */
-export const buildTopics = () => {
+export function buildTopics () {
 
    let data = Cache.get("topics")
 
-   for (let i = 0; i < data.length; i++) {
-      const element = data[i];
-      const parsedTopics = parseTopics(data[i])
+   for (let i = 0; i < data!.length; i++) {
+      const element = data![i];
+      const parsedTopics = parseTopics(data![i])
       addOptionGroup(parsedTopics.group, parsedTopics.entries)
    }
+   if (DEV) console.log(`db.buildTopics(60) completed!`)
 }
 
 /**
@@ -90,7 +84,7 @@ return topicObject
 
 /** Save all tasks */
 export function saveTasks(topicChanged?: boolean) {
-   Cache.set(keyName, tasks, topicChanged)
+   Cache.set(ctx.thisKeyName, ctx.tasks, topicChanged)
 }
 
 /** 
@@ -99,15 +93,15 @@ export function saveTasks(topicChanged?: boolean) {
 export function deleteCompleted() {
    const savedtasks: { text: string, disabled: boolean }[] = []
    let numberDeleted = 0
-   tasks.forEach((task) => {
+   ctx.tasks.forEach((task) => {
       if (task.disabled === false) {
          savedtasks.push(task)
       } else {
          numberDeleted++
       }
    })
-   tasks = savedtasks
-   saveTasks((currentTopic === 'topics'));
+   ctx.tasks = savedtasks
+   saveTasks((ctx.currentTopic === 'topics'));
    popupText.textContent = `Removed ${numberDeleted} tasks!`
    popupDialog.showModal()
 }

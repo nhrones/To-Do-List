@@ -175,14 +175,13 @@ textarea {
 }
 
 #closebtn {
-   margin-left: 0px;
    padding: 5px 10px 5px 10px;
    font-size: 1rem;
    resize: none;
-   border: none;
-   outline: none;
-   overflow: hidden;
+   /* overflow: hidden; */
    background-color: red;
+   border: 3px solid red;
+   border-radius:  0.5rem;
    color: white
 }
 

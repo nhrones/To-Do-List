@@ -1,3 +1,18 @@
+import type { CTX } from './types.ts'
+
+export const DEV = true
+
+/**
+ * app context object
+ */
+export const ctx: CTX = {
+   currentTopic: "topics",
+   DB_KEY: 'TODO',
+   nextTxId: 0,
+   thisKeyName: '',
+   tasks: [],
+}
+
 // deno-lint-ignore-file no-explicit-any
 /**
  * Shortcut for document.getElementById
@@ -10,13 +25,15 @@ export const $ = (id: string) => document.getElementById(id)
  * on - adds an event handler to an htmlElement
  * @param {HTMLElement} el an HTMLElement to add a listener to 
  * @param {String} event The name of the event to be handled
- * @param {Function} callback The event handler callback function
+ * @param {Function} callback The event-handler callback function
  * @returns void  
  */
-export const on = (el: any, event: any, callback: any) => el.addEventListener(event, callback)
+export const on = (
+   elem: HTMLElement,
+   event: string,
+   listener: EventListener) => elem.addEventListener(event, listener)
 
 //  await sleep(100);
-export function sleep(ms) {
+export function sleep(ms: number) {
    return new Promise(resolve => setTimeout(resolve, ms || 1000));
- }
- 
+}

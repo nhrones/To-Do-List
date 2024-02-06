@@ -1,38 +1,23 @@
-import { sleep } from './utils.ts'
-import { TODO_KEY, currentTopic, popupText, popupDialog,  } from './dom.ts'
+import { DEV, ctx, sleep } from './context.ts'
+import { Callback, DbRpcPackage, TaskType } from './types.ts'
 
-export type callback = (error: any, result: any) => void
+//TODO context ?
+export let todoCache: Map<string, TaskType[]> = new Map()
 
-export type DbRpcPackage = {
-   procedure: 'GET' | 'SET',
-   key: string,
-   value: any
-}
-
-export let todoCache: Map<string, any> = new Map()
-
-const DEV = true
-
-let nextTxId = 0
-
-const callbacks: Map<number, callback> = new Map()
-
+const callbacks: Map<number, Callback> = new Map()
+const idbChannel = new BroadcastChannel("IDB")
 const idbWorker = new Worker('./dist/idbWorker.js')
 
 idbWorker.onerror = (event) => {
    console.log("There is an error with your worker!");
 };
 
-const idbChannel = new BroadcastChannel("IDB")
-
-
-
 /** 
  * IDB init     
  * Hydrates the complete DB
  */
 export async function init() {
-
+   if (DEV) console.log(`dbCache.init(36)!`)
    // When we get a message from the worker we expect 
    // an object containing {msgID, error, and result}.
    //
@@ -47,14 +32,14 @@ export async function init() {
       callbacks.delete(msgID)                   // clean up
       if (callback) callback(error, result)     // execute
    }
-
+   if (DEV) console.log(`dbCache.init(51) awaits dbCache.hydrate()!`)
    // hydrate our todo data 
    return await hydrate()
 }
 
 export function restoreCache(records: string) {
-   const tasks = JSON.parse(records)
-   todoCache = new Map(tasks)
+   const tasksObj = JSON.parse(records)
+   todoCache = new Map(tasksObj)
    persist()
 }
 
@@ -80,27 +65,21 @@ export function set(key: string, value: any, topicChanged = false) {
 /**
  * hydrate a dataset from a single raw record stored in IndexedDB           
  */
-export async function hydrate() {
-
+async function hydrate() {
+   if (DEV) console.log(`dbCache.hydrate(85) sleeps(100ms)!`)
    // prevent a worker race condition
    await sleep(100);
-
-   // make a remote procedure call to get our 'TODO' record
-   let result = await request({ procedure: 'GET', key: TODO_KEY, value: '' })
-
-   // did we return data for the 'TODO' key in IDB?
+   if (DEV) console.log(`dbCache.hydrate(88) awaits GET DB_KEY!`)
+   // make a remote procedure call to get our record
+   let result = await request({ procedure: 'GET', key: ctx.DB_KEY, value: '' })
+   if (DEV) console.log(`dbCache.hydrate(91) returns result!`)
+   // did we return data for the key in IDB?
    if (result === 'NOT FOUND') {
-
+      if (DEV) console.log(`dbCache.hydrate(94) result 'NOT FOUND'!`)
       // no data found -- we'll need a minimal 
       // default 'topics' set to start up
       set("topics",
       [
-         {
-           text: `Apps   
-      App1, app1
-      App2, app2`,
-           disabled: false
-         },
          {
            text: `Topics
       Todo App Topics, topics`,
@@ -108,11 +87,11 @@ export async function hydrate() {
          }
        ]
       )
-
+      
       // a recursive call after setting defaults
       return await hydrate();
    }
-
+   if (DEV) console.log(`dbCache.hydrate(110) new Map(result)!`)
    // load our local cache
    todoCache = new Map(result)
 }
@@ -127,7 +106,7 @@ async function persist() {
    // get the complete cache-Map
    let todoArray = Array.from(todoCache.entries())
    // request remote proceedure to SET the 'TODO' key with the cache-string
-   await request({ procedure: 'SET', key: TODO_KEY, value: todoArray })
+   await request({ procedure: 'SET', key: ctx.DB_KEY, value: todoArray })
 }
 
 /** 
@@ -142,9 +121,9 @@ async function persist() {
  * our IndexedDB. Since most of the heavy lifting is    
  * on the worker, we never block the UI 
  */
-export function request(newRequest: DbRpcPackage): Promise<any> {
+function request(newRequest: DbRpcPackage): Promise<any> {
 
-   const txID = nextTxId++
+   const txID = ctx.nextTxId++
    return new Promise((resolve, reject) => {
       // set promise callback for this id
       callbacks.set(txID, (error: any, result: any) => {

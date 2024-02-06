@@ -1,9 +1,9 @@
-// deno-lint-ignore-file no-explicit-any
 /// <reference lib="dom" />
 import { addTask, refreshDisplay } from './tasks.ts'
 import { deleteCompleted, initDB, getTasks } from './db.ts';
-import { backupData, restoreData } from './export.ts'
-import { $, on } from './utils.ts'
+import { backupData, restoreData } from './backup.ts'
+import { DEV, ctx, on, $ } from './context.ts'
+
 
 /* create references for all UI elements */
 export const backupBtn = $("backupbtn") as HTMLButtonElement;
@@ -18,40 +18,34 @@ export const closebtn = $('closebtn') as HTMLButtonElement;
 export const popupDialog = $('popupDialog') as HTMLDialogElement;
 export const popupText = $("popup_text") as HTMLElement;
 
-// topic name
-export let currentTopic = "topics"
-export let TODO_KEY = 'TODO'
-/**
- * initialize all UI and event handlers    
- * called once on start up
- * @param {string} topic the topic name (data-key) 
- */
-export async function init() {
-
+/** initialize all UI and event handlers */
+export async function initDom() {
+   if (DEV) console.log(`dom.initDom(30) awaits initDB()!`)
    // initialize the local DB cache
    await initDB()
-
-   // todo input keydown handler
+   if (DEV) console.log(`dom.initDom(33) returned from initDB()!`)
+   // input keydown handler
    on(taskInput, "keydown", function (event: any) {
       if (event.key === "Enter") {
          event.preventDefault();
          const tc = taskInput.value as string
          if (tc.length > 0) {
-            addTask(tc, currentTopic === 'topics');
+            addTask(tc, ctx.currentTopic === 'topics');
          }
       }
    })
 
    // topic select change handler
    on(topicSelect, 'change', () => {
-      currentTopic = topicSelect.value.toLowerCase()
-      getTasks(currentTopic)
+      ctx.currentTopic = topicSelect.value.toLowerCase()
+      getTasks(ctx.currentTopic)
    })
    dbSelect
    // topic select change handler
-   on(dbSelect, 'change', () => {
-      TODO_KEY = topicSelect.value.toLowerCase()
-      getTasks(currentTopic)
+   on(dbSelect, 'change', async() => {
+      ctx.DB_KEY = dbSelect.value
+      console.log('About to init DB: ', ctx.DB_KEY)
+      await initDB()
    })
 
    // close button click handler
@@ -75,8 +69,8 @@ export async function init() {
       event.preventDefault();
    });
 
-   on(popupDialog, "keyup", (event: KeyboardEvent) => {
-      event.preventDefault()
+   on(popupDialog, "keyup", (evt: Event) => {
+      evt.preventDefault()
       popupDialog.close()
    })
 
@@ -90,7 +84,8 @@ export async function init() {
       restoreData()
    })
 
+   if (DEV) console.log(`dom.initDom(94) calls refreshDisplay()!`)
+   
    // initial display refresh
    refreshDisplay();
-
 }
