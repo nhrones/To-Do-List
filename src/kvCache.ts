@@ -1,4 +1,4 @@
-import { DEV, ctx, sleep } from './context.ts'
+import { DEV, KV_URL, ctx } from './context.ts'
 import { Callback, DbRpcPackage, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
 
@@ -23,7 +23,7 @@ export async function initCache() {
    // build an appropriate socket url
    const socketURL = (local) 
       ? `${wsProtocol}://localhost:8765`
-      : `${wsProtocol}://ndh-servekv.deno.dev/`;
+      : `${wsProtocol}://${KV_URL}/`;
 
    // create new WebSocket
    socket = new WebSocket(socketURL)

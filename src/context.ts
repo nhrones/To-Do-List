@@ -1,5 +1,6 @@
 import type { CTX } from './types.ts'
 
+export const KV_URL = 'ndh-servekv.deno.dev' 
 export const DEV = true
 
 /**
@@ -33,7 +34,3 @@ export const on = (
    event: string,
    listener: EventListener) => elem.addEventListener(event, listener)
 
-//  await sleep(100);
-export function sleep(ms: number) {
-   return new Promise(resolve => setTimeout(resolve, ms || 1000));
-}

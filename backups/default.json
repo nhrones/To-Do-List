@@ -1,0 +1,24 @@
+[
+   [
+      "topics",
+      [
+         {
+            "text": "Apps\n    App1, app1",
+            "disabled": false
+         },
+         {
+            "text": "Topics\n    Todo App Topics, topics",
+            "disabled": false
+         }
+      ]
+   ],
+   [
+      "app1",
+      [
+         {
+            "text": "Refactor",
+            "disabled": false
+         }
+      ]
+   ]
+]
