@@ -4,7 +4,7 @@ This simple app allows me to organize Todo-Tasks by subject and project.
 
 ### NOTE: 
 This client app requires a simple remote Kv-RPC Service.    
-See: https://github.com/nhrones/ServeKv
+See: https://github.com/nhrones/ServeKv    
 In DEV mode,(running from localhost), a local DenoKv-db will       
 be used. You'll need to run a local copy of the above service.    
 
