@@ -40,13 +40,13 @@ export async function initDom() {
       ctx.currentTopic = topicSelect.value.toLowerCase()
       getTasks(ctx.currentTopic)
    })
-   dbSelect
-   // topic select change handler
+  
+   // db select change handler
    on(dbSelect, 'change', async() => {
-      ctx.DB_KEY = dbSelect.value
-      console.log('About to init DB: ', ctx.DB_KEY)
+      ctx.DbKey = [dbSelect.value]
+      console.log('About to init DB: ', ctx.TopicKey)
       await initDB()
-   })
+   }) //TODO this is it?
 
    // close button click handler
    on(closebtn, 'click', () => {

@@ -1,13 +1,14 @@
 
 export type CTX = {
-   currentTopic: string,
-   DB_KEY: string
+   currentTopic: string
+   TopicKey: string
+   DbKey: string[]
    nextTxId: number
    thisKeyName: string
    tasks: { text: string, disabled: boolean }[]
 }
 
-export type Callback = (error: any, result: any) => void
+export type Callback = (error: string, result: string) => void
 
 export type DbRpcPackage = {
    procedure: 'GET' | 'SET',

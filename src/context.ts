@@ -8,7 +8,8 @@ export const DEV = true
  */
 export const ctx: CTX = {
    currentTopic: "topics",
-   DB_KEY: 'TODOS',
+   TopicKey: 'topics',
+   DbKey: ['TODOS'],
    nextTxId: 0,
    thisKeyName: '',
    tasks: [],

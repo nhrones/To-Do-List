@@ -1,5 +1,10 @@
 import { topicSelect } from './dom.ts'
 
+export function resetTopicSelect() {
+   topicSelect.innerHTML = '<option value="" disabled selected hidden>Select A Todo Topic</option>'
+}
+
+
 /** 
  * Build selectTag option group.
  * @param {*} selectElement select element to add a group to.

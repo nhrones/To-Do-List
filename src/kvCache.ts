@@ -83,9 +83,9 @@ async function hydrate() {
    if (DEV) console.log(`kvCache.hydrate(85) sleeps(100ms)!`)
    // prevent a worker race condition
    //await sleep(1000);
-   if (DEV) console.log(`kvCache.hydrate(88) awaits GET DB_KEY!`)
+   if (DEV) console.log(`kvCache.hydrate(88) awaits GET ctx.DbKey!`)
    // make a remote procedure call to get our record
-   let result = await request({ procedure: 'GET', key: ['TODOS'], value: '' })
+   let result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
 
    // did we return data for the key in IDB?
    if (result === 'NOT FOUND') 
@@ -104,8 +104,8 @@ async function hydrate() {
 async function persist() {
    // get the complete cache-Map
    let todoArray = Array.from(todoCache.entries())
-   // request remote proceedure to SET the 'TODOS' key with the cache-string
-   await request({ procedure: 'SET', key: ['TODOS'], value: todoArray })
+   // request remote proceedure to SET the 'DbKey' key with the cache-string
+   await request({ procedure: 'SET', key: ctx.DbKey, value: todoArray })
 }
 
 /** 

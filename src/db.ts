@@ -1,4 +1,4 @@
-import { addOptionGroup } from './selectBuilder.ts'
+import { addOptionGroup, resetTopicSelect } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
 import { initCache, getFromCache, setCache } from './kvCache.ts'
@@ -12,6 +12,7 @@ import { DEV, ctx } from './context.ts'
 export async function initDB() {
    if (DEV) console.log(`db.initDB(14) awaits Cache.init()!`)
    // hydrate from db
+
    await initCache()
    if (DEV) console.log(`db.initDB(17) return from Cache.init()!`)
 }
@@ -40,7 +41,7 @@ export function getTasks(key = "") {
 export function buildTopics () {
 
    let data = getFromCache("topics")
-   //TODO did not get topics??? undefined
+   resetTopicSelect()
    console.info(`db.buildTopics data: `, data)
    for (let i = 0; i < data!.length; i++) {
       const element = data![i];
