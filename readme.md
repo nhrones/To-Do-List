@@ -8,11 +8,11 @@ See: https://github.com/nhrones/ServeKv
 In DEV mode,(running from localhost), a local DenoKv-db will       
 be used. You'll need to run a local copy of the above service.    
 
-For production, simple copy this and the above repo.    
-I like to run this client from Githug.IO.    
+For production, simply copy this repo and the above service repo.    
+I like to run this client from Github.IO.    
 I Deploy the ServeKv to Deno Deploy.     
 You'll also need to change the `KV_URL` constant     
-in './src/context.ts`, to your deploy url.
+in './src/context.ts`, to your own deploy url.
 
 ### UI
 I've used a simple selectBox to select a project.    
