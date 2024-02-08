@@ -14,7 +14,7 @@ I Deploy the ServeKv to Deno Deploy.
 You'll also need to change the `KV_URL` constant     
 in './src/context.ts`, to your own deploy url.
 
-### UI
+### Client UI
 I've used a simple selectBox to select a project.    
 Once selected, all tasks for that project are listed.    
 Clicking on a task, allows you to edit the text in a multi-line TextArea element.    
