@@ -20,7 +20,7 @@ export async function init() {
    const local = (window.location.hostname === "localhost") 
    const socketURL = (local) 
       ? `${wsProtocol}://localhost:8765`
-      : `ws://ndh-servekv.deno.dev/`;
+      : `${wsProtocol}://ndh-servekv.deno.dev/`;
 
    console.log('socketURL = ', socketURL)
    socket = new WebSocket(socketURL)

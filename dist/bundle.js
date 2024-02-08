@@ -40,7 +40,7 @@ async function init() {
     console.log(`kvCache.init(36)!`);
   const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
   const local = window.location.hostname === "localhost";
-  const socketURL = local ? `${wsProtocol}://localhost:8765` : `ws://ndh-servekv.deno.dev/`;
+  const socketURL = local ? `${wsProtocol}://localhost:8765` : `${wsProtocol}://ndh-servekv.deno.dev/`;
   console.log("socketURL = ", socketURL);
   socket = new WebSocket(socketURL);
   socket.onopen = async () => {
