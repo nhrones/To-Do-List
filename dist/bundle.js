@@ -38,15 +38,11 @@ var todoCache = /* @__PURE__ */ new Map();
 var callbacks = /* @__PURE__ */ new Map();
 var socket;
 async function initCache() {
-  if (DEV)
-    console.log(`kvCache.init(36)!`);
   const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
   const local = window.location.hostname === "localhost";
   const socketURL = local ? `${wsProtocol}://localhost:8765` : `${wsProtocol}://${KV_URL}/`;
   socket = new WebSocket(socketURL);
   socket.onopen = async () => {
-    if (DEV)
-      console.log("socket.opened");
     return await hydrate();
   };
   socket.onmessage = (evt) => {
@@ -69,16 +65,11 @@ var getFromCache = (key) => {
 };
 function setCache(key, value, topicChanged = false) {
   todoCache.set(key, value);
-  console.log("kvCache setting ", value);
   persist();
   if (topicChanged)
     window.location.reload();
 }
 async function hydrate() {
-  if (DEV)
-    console.log(`kvCache.hydrate(85) sleeps(100ms)!`);
-  if (DEV)
-    console.log(`kvCache.hydrate(88) awaits GET ctx.DbKey!`);
   let result = await request({ procedure: "GET", key: ctx.DbKey, value: "" });
   if (result === "NOT FOUND")
     console.log(`kvCache.hydrate -- result = 'NOT FOUND'!`);
@@ -107,18 +98,15 @@ function request(newRequest) {
 
 // src/db.ts
 async function initDB() {
-  if (DEV)
-    console.log(`db.initDB(14) awaits Cache.init()!`);
   await initCache();
-  if (DEV)
-    console.log(`db.initDB(17) return from Cache.init()!`);
 }
 function getTasks(key = "") {
   ctx.thisKeyName = key;
   if (key.length) {
     let data = getFromCache(key) ?? [];
     if (data === null) {
-      console.log(`No data found for ${ctx.thisKeyName}`);
+      if (DEV)
+        console.log(`No data found for ${ctx.thisKeyName}`);
       data = [];
     }
     ctx.tasks = data;
@@ -128,14 +116,11 @@ function getTasks(key = "") {
 function buildTopics() {
   let data = getFromCache("topics");
   resetTopicSelect();
-  console.info(`db.buildTopics data: `, data);
   for (let i = 0; i < data.length; i++) {
     const element = data[i];
     const parsedTopics = parseTopics(data[i]);
     addOptionGroup(parsedTopics.group, parsedTopics.entries);
   }
-  if (DEV)
-    console.log(`db.buildTopics(60) completed!`);
 }
 function parseTopics(topics) {
   const topicObject = { group: "", entries: [] };
@@ -243,8 +228,6 @@ function refreshDisplay() {
       todoList.appendChild(p);
     });
   }
-  if (DEV)
-    console.log(`tasks.refreshDisplay(72) completed!`);
   todoCount.textContent = "" + ctx.tasks.length;
 }
 
@@ -284,11 +267,7 @@ var closebtn = $("closebtn");
 var popupDialog = $("popupDialog");
 var popupText = $("popup_text");
 async function initDom() {
-  if (DEV)
-    console.log(`dom.initDom(30) awaits initDB()!`);
   await initDB();
-  if (DEV)
-    console.log(`dom.initDom(33) returned from initDB()!`);
   on(taskInput, "keydown", function(event) {
     if (event.key === "Enter") {
       event.preventDefault();
@@ -304,7 +283,6 @@ async function initDom() {
   });
   on(dbSelect, "change", async () => {
     ctx.DbKey = [dbSelect.value];
-    console.log("About to init DB: ", ctx.TopicKey);
     await initDB();
   });
   on(closebtn, "click", () => {
@@ -332,14 +310,8 @@ async function initDom() {
   on(restoreBtn, "click", () => {
     restoreData();
   });
-  if (DEV)
-    console.log(`dom.initDom(94) calls refreshDisplay()!`);
   refreshDisplay();
 }
 
 // src/main.ts
-if (DEV)
-  console.log(`main(5) awaiting initDom!`);
 await initDom();
-if (DEV)
-  console.log(`main(5) returns from initDom!`);

@@ -71,7 +71,6 @@ export function refreshDisplay() {
          todoList.appendChild(p);
       });
    }
-   if (DEV) console.log(`tasks.refreshDisplay(72) completed!`)
    // update the task count
    todoCount.textContent = "" + ctx.tasks.length;
 }

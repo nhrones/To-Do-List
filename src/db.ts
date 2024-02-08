@@ -10,11 +10,8 @@ import { DEV, ctx } from './context.ts'
  * Hydrates cache data from IDB
  */
 export async function initDB() {
-   if (DEV) console.log(`db.initDB(14) awaits Cache.init()!`)
    // hydrate from db
-
    await initCache()
-   if (DEV) console.log(`db.initDB(17) return from Cache.init()!`)
 }
 
 /**
@@ -27,7 +24,7 @@ export function getTasks(key = "") {
    if (key.length) {
       let data = getFromCache(key) ?? []
       if (data === null) {
-         console.log(`No data found for ${ctx.thisKeyName}`)
+         if (DEV) console.log(`No data found for ${ctx.thisKeyName}`)
          data = []
       }
       ctx.tasks = data
@@ -39,16 +36,13 @@ export function getTasks(key = "") {
  * build a set of select options
  */
 export function buildTopics () {
-
    let data = getFromCache("topics")
    resetTopicSelect()
-   console.info(`db.buildTopics data: `, data)
    for (let i = 0; i < data!.length; i++) {
       const element = data![i];
       const parsedTopics = parseTopics(data![i])
       addOptionGroup(parsedTopics.group, parsedTopics.entries)
    }
-   if (DEV) console.log(`db.buildTopics(60) completed!`)
 }
 
 /**

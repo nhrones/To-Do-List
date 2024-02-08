@@ -14,8 +14,6 @@ export let socket: WebSocket
  */
 export async function initCache() {
 
-   if (DEV) console.log(`kvCache.init(36)!`)
-
    // get the appropriate WebSocket protocol
    const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
    // flag localhost hostname
@@ -30,7 +28,6 @@ export async function initCache() {
 
    // inform when opened
    socket.onopen = async () => {
-      if (DEV) console.log('socket.opened');
       return await hydrate()
    }
  
@@ -72,18 +69,12 @@ export const getFromCache = (key: string) => {
 /** The `set` method mutates - will call the `persist` method. */
 export function setCache(key: string, value: any, topicChanged = false) {
    todoCache.set(key, value)
-   console.log('kvCache setting ', value)
    persist()
    if (topicChanged) window.location.reload();
 }
 
 /** hydrate a dataset from a single raw record stored in IndexedDB */
 async function hydrate() {
-   //while(socket.readyState != 1) { }
-   if (DEV) console.log(`kvCache.hydrate(85) sleeps(100ms)!`)
-   // prevent a worker race condition
-   //await sleep(1000);
-   if (DEV) console.log(`kvCache.hydrate(88) awaits GET ctx.DbKey!`)
    // make a remote procedure call to get our record
    let result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
 

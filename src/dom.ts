@@ -20,10 +20,8 @@ export const popupText = $("popup_text") as HTMLElement;
 
 /** initialize all UI and event handlers */
 export async function initDom() {
-   if (DEV) console.log(`dom.initDom(30) awaits initDB()!`)
    // initialize the local DB cache
    await initDB()
-   if (DEV) console.log(`dom.initDom(33) returned from initDB()!`)
    // input keydown handler
    on(taskInput, "keydown", function (event: any) {
       if (event.key === "Enter") {
@@ -44,9 +42,8 @@ export async function initDom() {
    // db select change handler
    on(dbSelect, 'change', async() => {
       ctx.DbKey = [dbSelect.value]
-      console.log('About to init DB: ', ctx.TopicKey)
       await initDB()
-   }) //TODO this is it?
+   })
 
    // close button click handler
    on(closebtn, 'click', () => {
@@ -84,8 +81,6 @@ export async function initDom() {
       restoreData()
    })
 
-   if (DEV) console.log(`dom.initDom(94) calls refreshDisplay()!`)
-   
    // initial display refresh
    refreshDisplay();
 }
