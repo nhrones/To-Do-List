@@ -7,7 +7,7 @@ export const DEV = true
  */
 export const ctx: CTX = {
    currentTopic: "topics",
-   DB_KEY: 'TODO',
+   DB_KEY: 'TODOS',
    nextTxId: 0,
    thisKeyName: '',
    tasks: [],

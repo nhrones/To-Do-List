@@ -1,5 +1,5 @@
-import { DEV, ctx, sleep } from './context.ts'
-import { Callback, DbRpcPackage, TaskType } from './types.ts'
+import { DEV, ctx, sleep } from '../src/context.ts'
+import { Callback, DbRpcPackage, TaskType } from '../src/types.ts'
 
 //TODO context ?
 export let todoCache: Map<string, TaskType[]> = new Map()
@@ -68,32 +68,40 @@ export function set(key: string, value: any, topicChanged = false) {
 async function hydrate() {
    if (DEV) console.log(`dbCache.hydrate(85) sleeps(100ms)!`)
    // prevent a worker race condition
-   await sleep(100);
+   //await sleep(100);
    if (DEV) console.log(`dbCache.hydrate(88) awaits GET DB_KEY!`)
    // make a remote procedure call to get our record
-   let result = await request({ procedure: 'GET', key: ctx.DB_KEY, value: '' })
-   if (DEV) console.log(`dbCache.hydrate(91) returns result!`)
-   // did we return data for the key in IDB?
-   if (result === 'NOT FOUND') {
-      if (DEV) console.log(`dbCache.hydrate(94) result 'NOT FOUND'!`)
-      // no data found -- we'll need a minimal 
-      // default 'topics' set to start up
-      set("topics",
-      [
-         {
-           text: `Topics
-      Todo App Topics, topics`,
-           disabled: false
+   //let result = await request({ procedure: 'GET', key: ['TODOS'], value: '' })
+   try {
+      request({ procedure: 'GET', key: ['TODOS'], value: '' }).then((result) => {
+         if (DEV) console.log(`dbCache.hydrate(91) returns result!`)
+         // did we return data for the key in IDB?
+         if (result === 'NOT FOUND') {
+            if (DEV) console.log(`dbCache.hydrate(94) result 'NOT FOUND'!`)
+            // no data found -- we'll need a minimal 
+            // default 'topics' set to start up
+            //    set("topics",
+            //       [
+            //          {
+            //             text: `Topics
+            // Todo App Topics, topics`,
+            //             disabled: false
+            //          }
+            //       ]
+            //    )
+
+            // a recursive call after setting defaults
+            //return await hydrate();
          }
-       ]
-      )
-      
-      // a recursive call after setting defaults
-      return await hydrate();
+         if (DEV) console.log(`dbCache.hydrate(110) new Map(result)!`)
+
+         // load our local cache
+         todoCache = new Map(result)
+      })
+   } catch (err) {
+      console.error(JSON.stringify(err))
    }
-   if (DEV) console.log(`dbCache.hydrate(110) new Map(result)!`)
-   // load our local cache
-   todoCache = new Map(result)
+   return null
 }
 
 /** 
@@ -102,11 +110,10 @@ async function hydrate() {
  * This is called for any mutation of the todoCache (set/delete)     
  */
 async function persist() {
-
    // get the complete cache-Map
    let todoArray = Array.from(todoCache.entries())
-   // request remote proceedure to SET the 'TODO' key with the cache-string
-   await request({ procedure: 'SET', key: ctx.DB_KEY, value: todoArray })
+   // request remote proceedure to SET the 'TODOS' key with the cache-string
+   //await request({ procedure: 'SET', key: ctx.DB_KEY, value: todoArray })
 }
 
 /** 
@@ -122,15 +129,17 @@ async function persist() {
  * on the worker, we never block the UI 
  */
 function request(newRequest: DbRpcPackage): Promise<any> {
-
+   console.log(`dbCache request!`)
    const txID = ctx.nextTxId++
+   console.log(`returning promise for txID!`)
    return new Promise((resolve, reject) => {
       // set promise callback for this id
       callbacks.set(txID, (error: any, result: any) => {
          if (error) reject(new Error(error.message))
+         console.log(`resolving txID: ${txID}`)
          resolve(result)
       })
-
+      console.log(`dbCache request, postMessage:!`, txID)
       idbChannel.postMessage({ txID: txID, payload: newRequest })
    })
 }

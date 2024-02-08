@@ -1,7 +1,7 @@
 import { addOptionGroup } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
-import * as Cache from './dbCache.ts'
+import * as Cache from './kvCache.ts'
 import { DEV, ctx } from './context.ts'
 
 
@@ -14,9 +14,6 @@ export async function initDB() {
    /** hydrate db */
    await Cache.init()
    if (DEV) console.log(`db.initDB(17) return from Cache.init()!`)
-   if (DEV) console.log(`db.initDB(18) calls buildTopics()!`)
-   // assemble the topics drop-down UI
-   buildTopics()
 }
 
 /**
@@ -43,7 +40,8 @@ export function getTasks(key = "") {
 export function buildTopics () {
 
    let data = Cache.get("topics")
-
+   //TODO did not get topics??? undefined
+   console.info(`db.buildTopics data: `, data)
    for (let i = 0; i < data!.length; i++) {
       const element = data![i];
       const parsedTopics = parseTopics(data![i])

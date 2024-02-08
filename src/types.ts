@@ -11,7 +11,7 @@ export type Callback = (error: any, result: any) => void
 
 export type DbRpcPackage = {
    procedure: 'GET' | 'SET',
-   key: string,
+   key: string[],
    value: any
 }
 
