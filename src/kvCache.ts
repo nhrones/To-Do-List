@@ -12,22 +12,25 @@ export let socket: WebSocket
  * IDB init     
  * Hydrates the complete DB
  */
-export async function init() {
+export async function initCache() {
 
    if (DEV) console.log(`kvCache.init(36)!`)
 
+   // get the appropriate WebSocket protocol
    const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
+   // flag localhost hostname
    const local = (window.location.hostname === "localhost") 
+   // build an appropriate socket url
    const socketURL = (local) 
       ? `${wsProtocol}://localhost:8765`
       : `${wsProtocol}://ndh-servekv.deno.dev/`;
 
-   console.log('socketURL = ', socketURL)
+   // create new WebSocket
    socket = new WebSocket(socketURL)
+
    // inform when opened
    socket.onopen = async () => {
       if (DEV) console.log('socket.opened');
-      if (DEV) console.log(`kvCache.init(51) awaits kvCache.hydrate()!`)
       return await hydrate()
    }
  
@@ -40,20 +43,14 @@ export async function init() {
    // returned to the client when the callback was created.
    socket.onmessage = (evt: MessageEvent) => {
       const { txID, error, result } = JSON.parse(evt.data)  // unpack
-      if (DEV) console.log(`socket.onmessage txID = ${txID}`)
-      if (!callbacks.has(txID)) return          // check
-      const callback = callbacks.get(txID)      // fetch
-      callbacks.delete(txID)                    // clean up
-      if (callback) {
-         if (DEV) console.info(`found and calling ${callback}`)
-         callback(error, result)                // execute
-      }
+      if (!callbacks.has(txID)) return                      // check
+      const callback = callbacks.get(txID)                  // fetch
+      callbacks.delete(txID)                                // clean up
+      if (callback) callback(error, result);                // execute
    }
-   // if (DEV) console.log(`kvCache.init(51) awaits kvCache.hydrate()!`)
-   // // hydrate our todo data 
-   // return await hydrate()
 }
 
+/** restore our cache from a json backup */
 export function restoreCache(records: string) {
    const tasksObj = JSON.parse(records)
    todoCache = new Map(tasksObj)
@@ -61,28 +58,26 @@ export function restoreCache(records: string) {
 }
 
 /** The `remove` method mutates - will call the `persist` method. */
-export function remove(key: string): any {
+export function removeFromCache(key: string): any {
    let result = todoCache.delete(key)
    if (result === true) persist()
    return result
 }
 
 /** The `get` method will not mutate records */
-export const get = (key: string) => {
+export const getFromCache = (key: string) => {
    return todoCache.get(key)
 }
 
 /** The `set` method mutates - will call the `persist` method. */
-export function set(key: string, value: any, topicChanged = false) {
+export function setCache(key: string, value: any, topicChanged = false) {
    todoCache.set(key, value)
    console.log('kvCache setting ', value)
    persist()
    if (topicChanged) window.location.reload();
 }
 
-/**
- * hydrate a dataset from a single raw record stored in IndexedDB           
- */
+/** hydrate a dataset from a single raw record stored in IndexedDB */
 async function hydrate() {
    //while(socket.readyState != 1) { }
    if (DEV) console.log(`kvCache.hydrate(85) sleeps(100ms)!`)
@@ -91,30 +86,12 @@ async function hydrate() {
    if (DEV) console.log(`kvCache.hydrate(88) awaits GET DB_KEY!`)
    // make a remote procedure call to get our record
    let result = await request({ procedure: 'GET', key: ['TODOS'], value: '' })
-   if (DEV) console.log(`kvCache.hydrate(91) returns result!`)
-   // did we return data for the key in IDB?
-   if (result === 'NOT FOUND') {
-      if (DEV) console.log(`kvCache.hydrate(94) result 'NOT FOUND'!`)
-      // no data found -- we'll need a minimal 
-      // default 'topics' set to start up
-      set("topics",
-         [
-            {
-               text: `Topics
-      Todo App Topics, topics`,
-               disabled: false
-            }
-         ], 
-         true
-      )
 
-      // a recursive call after setting defaults
-      return await hydrate();
-   }
-   if (DEV) console.log(`kvCache.hydrate(110) new Map(result)!`)
+   // did we return data for the key in IDB?
+   if (result === 'NOT FOUND') 
+      console.log(`kvCache.hydrate -- result = 'NOT FOUND'!`);
+
    // load our local cache
-   console.info(`hydrate result type ${typeof result}  `,result)
-   //todoCache = new Map(JSON.parse(result.value))
    todoCache = new Map(result.value)
    buildTopics()
 }
@@ -125,7 +102,6 @@ async function hydrate() {
  * This is called for any mutation of the todoCache (set/delete)     
  */
 async function persist() {
-
    // get the complete cache-Map
    let todoArray = Array.from(todoCache.entries())
    // request remote proceedure to SET the 'TODOS' key with the cache-string
@@ -158,6 +134,5 @@ function request(newRequest: DbRpcPackage): Promise<any> {
       } else {
          console.log('Socket not yet open!')
       }
-
    })
 }

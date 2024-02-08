@@ -1,7 +1,7 @@
 import { addOptionGroup } from './selectBuilder.ts'
 import { refreshDisplay } from './tasks.ts'
 import { popupText, popupDialog } from './dom.ts'
-import * as Cache from './kvCache.ts'
+import { initCache, getFromCache, setCache } from './kvCache.ts'
 import { DEV, ctx } from './context.ts'
 
 
@@ -11,8 +11,8 @@ import { DEV, ctx } from './context.ts'
  */
 export async function initDB() {
    if (DEV) console.log(`db.initDB(14) awaits Cache.init()!`)
-   /** hydrate db */
-   await Cache.init()
+   // hydrate from db
+   await initCache()
    if (DEV) console.log(`db.initDB(17) return from Cache.init()!`)
 }
 
@@ -24,7 +24,7 @@ export async function initDB() {
 export function getTasks(key = "") {
    ctx.thisKeyName = key
    if (key.length) {
-      let data = Cache.get(key) ?? []
+      let data = getFromCache(key) ?? []
       if (data === null) {
          console.log(`No data found for ${ctx.thisKeyName}`)
          data = []
@@ -39,7 +39,7 @@ export function getTasks(key = "") {
  */
 export function buildTopics () {
 
-   let data = Cache.get("topics")
+   let data = getFromCache("topics")
    //TODO did not get topics??? undefined
    console.info(`db.buildTopics data: `, data)
    for (let i = 0; i < data!.length; i++) {
@@ -82,7 +82,7 @@ return topicObject
 
 /** Save all tasks */
 export function saveTasks(topicChanged?: boolean) {
-   Cache.set(ctx.thisKeyName, ctx.tasks, topicChanged)
+   setCache(ctx.thisKeyName, ctx.tasks, topicChanged)
 }
 
 /** 

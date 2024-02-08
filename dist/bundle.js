@@ -1,6 +1,4 @@
 // deno-lint-ignore-file
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/selectBuilder.ts
 function addOptionGroup(label, options) {
@@ -17,7 +15,6 @@ function addOptionGroup(label, options) {
   topicSelect.appendChild(optionGroup);
   return optionGroup;
 }
-__name(addOptionGroup, "addOptionGroup");
 
 // src/context.ts
 var DEV = true;
@@ -28,97 +25,65 @@ var ctx = {
   thisKeyName: "",
   tasks: []
 };
-var $ = /* @__PURE__ */ __name((id) => document.getElementById(id), "$");
-var on = /* @__PURE__ */ __name((elem, event, listener) => elem.addEventListener(event, listener), "on");
+var $ = (id) => document.getElementById(id);
+var on = (elem, event, listener) => elem.addEventListener(event, listener);
 
 // src/kvCache.ts
 var todoCache = /* @__PURE__ */ new Map();
 var callbacks = /* @__PURE__ */ new Map();
 var socket;
-async function init() {
+async function initCache() {
   if (DEV)
     console.log(`kvCache.init(36)!`);
   const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
   const local = window.location.hostname === "localhost";
   const socketURL = local ? `${wsProtocol}://localhost:8765` : `${wsProtocol}://ndh-servekv.deno.dev/`;
-  console.log("socketURL = ", socketURL);
   socket = new WebSocket(socketURL);
   socket.onopen = async () => {
     if (DEV)
       console.log("socket.opened");
-    if (DEV)
-      console.log(`kvCache.init(51) awaits kvCache.hydrate()!`);
     return await hydrate();
   };
   socket.onmessage = (evt) => {
     const { txID, error, result } = JSON.parse(evt.data);
-    if (DEV)
-      console.log(`socket.onmessage txID = ${txID}`);
     if (!callbacks.has(txID))
       return;
     const callback = callbacks.get(txID);
     callbacks.delete(txID);
-    if (callback) {
-      if (DEV)
-        console.info(`found and calling ${callback}`);
+    if (callback)
       callback(error, result);
-    }
   };
 }
-__name(init, "init");
 function restoreCache(records) {
   const tasksObj = JSON.parse(records);
   todoCache = new Map(tasksObj);
   persist();
 }
-__name(restoreCache, "restoreCache");
-var get = /* @__PURE__ */ __name((key) => {
+var getFromCache = (key) => {
   return todoCache.get(key);
-}, "get");
-function set(key, value, topicChanged = false) {
+};
+function setCache(key, value, topicChanged = false) {
   todoCache.set(key, value);
   console.log("kvCache setting ", value);
   persist();
   if (topicChanged)
     window.location.reload();
 }
-__name(set, "set");
 async function hydrate() {
   if (DEV)
     console.log(`kvCache.hydrate(85) sleeps(100ms)!`);
   if (DEV)
     console.log(`kvCache.hydrate(88) awaits GET DB_KEY!`);
   let result = await request({ procedure: "GET", key: ["TODOS"], value: "" });
-  if (DEV)
-    console.log(`kvCache.hydrate(91) returns result!`);
-  if (result === "NOT FOUND") {
-    if (DEV)
-      console.log(`kvCache.hydrate(94) result 'NOT FOUND'!`);
-    set(
-      "topics",
-      [
-        {
-          text: `Topics
-      Todo App Topics, topics`,
-          disabled: false
-        }
-      ],
-      true
-    );
-    return await hydrate();
-  }
-  if (DEV)
-    console.log(`kvCache.hydrate(110) new Map(result)!`);
-  console.info(`hydrate result type ${typeof result}  `, result);
+  if (result === "NOT FOUND")
+    console.log(`kvCache.hydrate -- result = 'NOT FOUND'!`);
   todoCache = new Map(result.value);
   buildTopics();
 }
-__name(hydrate, "hydrate");
 async function persist() {
   let todoArray = Array.from(todoCache.entries());
   await request({ procedure: "SET", key: ["TODOS"], value: todoArray });
 }
-__name(persist, "persist");
 function request(newRequest) {
   const txID = ctx.nextTxId++;
   return new Promise((resolve, reject) => {
@@ -134,21 +99,19 @@ function request(newRequest) {
     }
   });
 }
-__name(request, "request");
 
 // src/db.ts
 async function initDB() {
   if (DEV)
     console.log(`db.initDB(14) awaits Cache.init()!`);
-  await init();
+  await initCache();
   if (DEV)
     console.log(`db.initDB(17) return from Cache.init()!`);
 }
-__name(initDB, "initDB");
 function getTasks(key = "") {
   ctx.thisKeyName = key;
   if (key.length) {
-    let data = get(key) ?? [];
+    let data = getFromCache(key) ?? [];
     if (data === null) {
       console.log(`No data found for ${ctx.thisKeyName}`);
       data = [];
@@ -157,9 +120,8 @@ function getTasks(key = "") {
     refreshDisplay();
   }
 }
-__name(getTasks, "getTasks");
 function buildTopics() {
-  let data = get("topics");
+  let data = getFromCache("topics");
   console.info(`db.buildTopics data: `, data);
   for (let i = 0; i < data.length; i++) {
     const element = data[i];
@@ -169,7 +131,6 @@ function buildTopics() {
   if (DEV)
     console.log(`db.buildTopics(60) completed!`);
 }
-__name(buildTopics, "buildTopics");
 function parseTopics(topics) {
   const topicObject = { group: "", entries: [] };
   const thisTopic = topics;
@@ -188,11 +149,9 @@ function parseTopics(topics) {
   }
   return topicObject;
 }
-__name(parseTopics, "parseTopics");
 function saveTasks(topicChanged) {
-  set(ctx.thisKeyName, ctx.tasks, topicChanged);
+  setCache(ctx.thisKeyName, ctx.tasks, topicChanged);
 }
-__name(saveTasks, "saveTasks");
 function deleteCompleted() {
   const savedtasks = [];
   let numberDeleted = 0;
@@ -208,7 +167,6 @@ function deleteCompleted() {
   popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
-__name(deleteCompleted, "deleteCompleted");
 
 // src/templates.ts
 function taskTemplate(index, item) {
@@ -228,7 +186,6 @@ function taskTemplate(index, item) {
    </div>
  `;
 }
-__name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
 function addTask(newTask, topics = false) {
@@ -241,7 +198,6 @@ function addTask(newTask, topics = false) {
   taskInput.focus();
   refreshDisplay();
 }
-__name(addTask, "addTask");
 function refreshDisplay() {
   todoList.innerHTML = "";
   if (ctx.tasks && ctx.tasks.length > 0) {
@@ -285,7 +241,6 @@ function refreshDisplay() {
     console.log(`tasks.refreshDisplay(72) completed!`);
   todoCount.textContent = "" + ctx.tasks.length;
 }
-__name(refreshDisplay, "refreshDisplay");
 
 // src/backup.ts
 function backupData() {
@@ -297,7 +252,6 @@ function backupData() {
   link.click();
   URL.revokeObjectURL(link.href);
 }
-__name(backupData, "backupData");
 function restoreData() {
   const fileload = document.getElementById("fileload");
   fileload.click();
@@ -310,7 +264,6 @@ function restoreData() {
     reader.readAsText(this.files[0]);
   });
 }
-__name(restoreData, "restoreData");
 
 // src/dom.ts
 var backupBtn = $("backupbtn");
@@ -378,7 +331,6 @@ async function initDom() {
     console.log(`dom.initDom(94) calls refreshDisplay()!`);
   refreshDisplay();
 }
-__name(initDom, "initDom");
 
 // src/main.ts
 if (DEV)
