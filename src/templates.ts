@@ -1,10 +1,6 @@
 import { TaskType } from './types.ts'
-/** 
- * build a task element template string
- * @param {number} index an index used in id 
- * @param {object} item the task item
- * @returns {string} a task element template
- */
+
+/** build a task element template string */
 export function taskTemplate(index: number, item: TaskType) {
    const { disabled, text } = item
    return `
@@ -19,6 +15,5 @@ export function taskTemplate(index: number, item: TaskType) {
          class="${(disabled) ? "disabled" : "" }" 
          data-index=${index}>${text}
       </pre>
-   </div>
- `;
+   </div> `;
 } 
