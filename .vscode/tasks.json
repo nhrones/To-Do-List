@@ -2,6 +2,18 @@
    "version": "2.0.0",
    "tasks": [
       {
+         "label": "RUN RPC SERVICE",
+         "type": "deno",
+         "command": "run",
+         "args": [ "-A", "--quiet","--unstable-kv", "service.ts" ],
+         "options": {
+            "cwd": "C:/Users/nhron/dev/GitHub/ServeKv"
+         },
+         "problemMatcher": [
+            "$deno"
+         ]
+      },
+      {
          "label": "BUILD",
          "type": "shell",
          "command": "build",

@@ -42,6 +42,7 @@ export async function initDom() {
    // db select change handler
    on(dbSelect, 'change', async() => {
       ctx.DbKey = [dbSelect.value]
+      ctx.TopicKey = "topics"
       await initDB()
    })
 
