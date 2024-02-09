@@ -36,10 +36,9 @@ export function getTasks(key = "") {
  * build a set of select options
  */
 export function buildTopics () {
-   let data = getFromCache("topics")
+   const data = getFromCache("topics")
    resetTopicSelect()
    for (let i = 0; i < data!.length; i++) {
-      const element = data![i];
       const parsedTopics = parseTopics(data![i])
       addOptionGroup(parsedTopics.group, parsedTopics.entries)
    }
@@ -50,6 +49,7 @@ export function buildTopics () {
  * @param topics - array 
  * @returns array 
  */
+// deno-lint-ignore no-explicit-any
 function parseTopics(topics: any) {
 
    const topicObject: {
@@ -63,7 +63,7 @@ function parseTopics(topics: any) {
    topicObject.group = lines[0].trim()
 
    for (let i = 1; i < lines.length; i++) {
-      let newObj = { title: "", key: "" }
+      const newObj = { title: "", key: "" }
       const element = lines[i];
       const items = element.split(',')
       const title = items[0]

@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { DEV, KV_URL, ctx } from './context.ts'
 import { Callback, DbRpcPackage, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
@@ -12,7 +13,7 @@ export let socket: WebSocket
  * IDB init     
  * Hydrates the complete DB
  */
-export async function initCache() {
+export function initCache() {
 
    // get the appropriate WebSocket protocol
    const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
@@ -23,6 +24,8 @@ export async function initCache() {
       ? `${wsProtocol}://localhost:8765`
       : `${wsProtocol}://${KV_URL}/`;
 
+
+   if (DEV) console.log('socket url = ', socketURL)
    // create new WebSocket
    socket = new WebSocket(socketURL)
 
@@ -55,8 +58,8 @@ export function restoreCache(records: string) {
 }
 
 /** The `remove` method mutates - will call the `persist` method. */
-export function removeFromCache(key: string): any {
-   let result = todoCache.delete(key)
+export function removeFromCache(key: string): boolean {
+   const result = todoCache.delete(key)
    if (result === true) persist()
    return result
 }
@@ -76,7 +79,7 @@ export function setCache(key: string, value: any, topicChanged = false) {
 /** hydrate a dataset from a single raw record stored in IndexedDB */
 async function hydrate() {
    // make a remote procedure call to get our record
-   let result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
+   const result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
 
    // did we return data for the key in IDB?
    if (result === 'NOT FOUND') 
@@ -94,7 +97,7 @@ async function hydrate() {
  */
 async function persist() {
    // get the complete cache-Map
-   let todoArray = Array.from(todoCache.entries())
+   const todoArray = Array.from(todoCache.entries())
    // request remote proceedure to SET the 'DbKey' key with the cache-string
    await request({ procedure: 'SET', key: ctx.DbKey, value: todoArray })
 }

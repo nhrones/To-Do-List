@@ -1,17 +1,14 @@
-
+// deno-lint-ignore-file no-explicit-any
 import { todoCount, taskInput, todoList } from './dom.ts'
 import { saveTasks } from './db.ts';
 import { taskTemplate } from './templates.ts'
 import { DEV, ctx, on } from './context.ts'
 
-/**
- * Add a new task
- * @returns void
- */
+/** Add a new task */
 export function addTask(newTask: string, topics = false) {
    if (topics) newTask = `${newTask}
       newTopic, newKey`;
-
+   if (DEV) console.log('added task ', newTask)
    ctx.tasks.unshift({ text: newTask, disabled: false });
    saveTasks(topics)
    taskInput.value = "";
@@ -19,10 +16,7 @@ export function addTask(newTask: string, topics = false) {
    refreshDisplay();
 }
 
-/**
- * Display all tasks
- * @returns void
- */
+/** Display all tasks */
 export function refreshDisplay() {
 
    todoList.innerHTML = "";
@@ -36,7 +30,7 @@ export function refreshDisplay() {
             // lets the checkbox-change handler below work
             if (e.target.type === 'checkbox') return;
             // ignore all `textarea` elements
-            if (e.target.type === 'textarea') return;
+            if (e.target!.type === 'textarea') return;
 
             const todoItem = e.target;
             const existingText = ctx.tasks[index].text;
@@ -61,9 +55,8 @@ export function refreshDisplay() {
          })
 
          // handle the `completed` checkbox change event
-         on(p.querySelector(".todo-checkbox")!, "change", (e: Event) => {
+         on(p.querySelector(".todo-checkbox")!, "change", (e: any) => {
             e.preventDefault()
-            //@ts-ignore
             const index = e.target.dataset.index
             ctx.tasks[index].disabled = !ctx.tasks[index].disabled;
             saveTasks(false)

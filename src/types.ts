@@ -13,7 +13,7 @@ export type Callback = (error: string, result: string) => void
 export type DbRpcPackage = {
    procedure: 'GET' | 'SET',
    key: string[],
-   value: string | string[]
+   value:string | [string, TaskType[]][]
 }
 
 export type TaskType = {

@@ -23,12 +23,11 @@ export function restoreData() {
    const fileload = document.getElementById('fileload') as HTMLInputElement
    fileload.click()
    fileload.addEventListener('change', function () {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = function () {
          restoreCache(reader.result as string)
          window.location.reload()
       }
-      //@ts-ignore 
-      reader.readAsText(this.files[0]);
+      reader.readAsText(fileload.files![0]);
    })
 }
