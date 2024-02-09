@@ -10,8 +10,8 @@ export type CTX = {
 
 export type Callback = (error: string, result: string) => void
 
-export type DbRpcPackage = {
-   procedure: 'GET' | 'SET',
+export type DbRpcPayload = {
+   procedure: 'GET' | 'GETALL' | 'SET',
    key: string[],
    value:string | [string, TaskType[]][]
 }

@@ -7,7 +7,7 @@
          "command": "run",
          "args": [ "-A", "--quiet","--unstable-kv", "service.ts" ],
          "options": {
-            "cwd": "C:/Users/nhron/dev/GitHub/ServeKv"
+            "cwd": "C:/Users/nhron/dev/GitHub/kv-ws-rpc"
          },
          "problemMatcher": [
             "$deno"

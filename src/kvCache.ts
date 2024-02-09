@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { DEV, KV_URL, ctx } from './context.ts'
-import { Callback, DbRpcPackage, TaskType } from './types.ts'
+import { Callback, DbRpcPayload, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
 
 export let todoCache: Map<string, TaskType[]> = new Map()
@@ -114,7 +114,7 @@ async function persist() {
  * our IndexedDB. Since most of the heavy lifting is    
  * on the worker, we never block the UI 
  */
-function request(newRequest: DbRpcPackage): Promise<any> {
+function request(newRequest: DbRpcPayload): Promise<any> {
 
    const txID = ctx.nextTxId++
    return new Promise((resolve, reject) => {
