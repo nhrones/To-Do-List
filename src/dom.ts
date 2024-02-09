@@ -23,9 +23,10 @@ export async function initDom() {
    // initialize the local DB cache
    await initDB()
    // input keydown handler
-   on(taskInput, "keydown", function (event: any) {
-      if (event.key === "Enter") {
-         event.preventDefault();
+   on(taskInput, "keydown", function (evt: Event) {
+      const { key } = evt as KeyboardEvent
+      if (key === "Enter") {
+         evt.preventDefault();
          const tc = taskInput.value as string
          if (tc.length > 0) {
             addTask(tc, ctx.currentTopic === 'topics');
@@ -48,7 +49,8 @@ export async function initDom() {
 
    // close button click handler
    on(closebtn, 'click', () => {
-      window.open(location.href, "_self", "");
+      if (DEV) console.log('closebtn clicked')
+      self.open(location.href, "_self", "");
       self.close()
    })
 
