@@ -2,7 +2,7 @@
 import { DEV, KV_URL, ctx } from './context.ts'
 import { Callback, DbRpcPayload, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
-
+import { KvSocket} from'./WebSocketProxy.ts'
 export let todoCache: Map<string, TaskType[]> = new Map()
 
 const callbacks: Map<number, Callback> = new Map()
@@ -27,7 +27,7 @@ export function initCache() {
 
    if (DEV) console.log('socket url = ', socketURL)
    // create new WebSocket
-   socket = new WebSocket(socketURL)
+   socket = new KvSocket(socketURL) //HACK WebSocket(socketURL)
 
    // inform when opened
    socket.onopen = async () => {
@@ -118,7 +118,7 @@ function request(newRequest: DbRpcPayload): Promise<any> {
 
    const txID = ctx.nextTxId++
    return new Promise((resolve, reject) => {
-      if (socket.readyState === 1) {// open
+      if (socket.readyState === WebSocket.OPEN) { 
          // set promise callback for this id
          callbacks.set(txID, (error: any, result: any) => {
             if (error) reject(new Error(error.message))

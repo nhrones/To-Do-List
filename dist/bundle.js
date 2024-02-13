@@ -1,12 +1,9 @@
 // deno-lint-ignore-file
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/selectBuilder.ts
 function resetTopicSelect() {
   topicSelect.innerHTML = '<option value="" disabled selected hidden>Select A Todo Topic</option>';
 }
-__name(resetTopicSelect, "resetTopicSelect");
 function addOptionGroup(label, options) {
   const len = options.length;
   let optionElement;
@@ -21,7 +18,6 @@ function addOptionGroup(label, options) {
   topicSelect.appendChild(optionGroup);
   return optionGroup;
 }
-__name(addOptionGroup, "addOptionGroup");
 
 // src/context.ts
 var KV_URL = "kv-ws-rpc.deno.dev";
@@ -34,8 +30,38 @@ var ctx = {
   thisKeyName: "",
   tasks: []
 };
-var $ = /* @__PURE__ */ __name((id) => document.getElementById(id), "$");
-var on = /* @__PURE__ */ __name((elem, event, listener) => elem.addEventListener(event, listener), "on");
+var $ = (id) => document.getElementById(id);
+var on = (elem, event, listener) => elem.addEventListener(event, listener);
+
+// src/WebSocketProxy.ts
+var KvSocket = new Proxy(self.WebSocket, {
+  construct: function(target, args) {
+    const instance = new target(...args);
+    const openHandler = (event) => {
+      console.log("Proxy.Open", event);
+    };
+    const messageHandler = (event) => {
+      console.log("Proxy.Message", event);
+    };
+    const closeHandler = (event) => {
+      console.log("Proxy.Close", event);
+      instance.removeEventListener("open", openHandler);
+      instance.removeEventListener("message", messageHandler);
+      instance.removeEventListener("close", closeHandler);
+    };
+    instance.addEventListener("open", openHandler);
+    instance.addEventListener("message", messageHandler);
+    instance.addEventListener("close", closeHandler);
+    const sendProxy = new Proxy(instance.send, {
+      apply: function(target2, thisArg, args2) {
+        console.log("Proxy.Send", args2);
+        target2.apply(thisArg, args2);
+      }
+    });
+    instance.send = sendProxy;
+    return instance;
+  }
+});
 
 // src/kvCache.ts
 var todoCache = /* @__PURE__ */ new Map();
@@ -47,7 +73,7 @@ function initCache() {
   const socketURL = local ? `${wsProtocol}://localhost:8765` : `${wsProtocol}://${KV_URL}/`;
   if (DEV)
     console.log("socket url = ", socketURL);
-  socket = new WebSocket(socketURL);
+  socket = new KvSocket(socketURL);
   socket.onopen = async () => {
     return await hydrate();
   };
@@ -61,23 +87,20 @@ function initCache() {
       callback(error, result);
   };
 }
-__name(initCache, "initCache");
 function restoreCache(records) {
   const tasksObj = JSON.parse(records);
   todoCache = new Map(tasksObj);
   persist();
 }
-__name(restoreCache, "restoreCache");
-var getFromCache = /* @__PURE__ */ __name((key) => {
+var getFromCache = (key) => {
   return todoCache.get(key);
-}, "getFromCache");
+};
 function setCache(key, value, topicChanged = false) {
   todoCache.set(key, value);
   persist();
   if (topicChanged)
     window.location.reload();
 }
-__name(setCache, "setCache");
 async function hydrate() {
   const result = await request({ procedure: "GET", key: ctx.DbKey, value: "" });
   if (result === "NOT FOUND")
@@ -85,16 +108,14 @@ async function hydrate() {
   todoCache = new Map(result.value);
   buildTopics();
 }
-__name(hydrate, "hydrate");
 async function persist() {
   const todoArray = Array.from(todoCache.entries());
   await request({ procedure: "SET", key: ctx.DbKey, value: todoArray });
 }
-__name(persist, "persist");
 function request(newRequest) {
   const txID = ctx.nextTxId++;
   return new Promise((resolve, reject) => {
-    if (socket.readyState === 1) {
+    if (socket.readyState === WebSocket.OPEN) {
       callbacks.set(txID, (error, result) => {
         if (error)
           reject(new Error(error.message));
@@ -106,13 +127,11 @@ function request(newRequest) {
     }
   });
 }
-__name(request, "request");
 
 // src/db.ts
 async function initDB() {
   await initCache();
 }
-__name(initDB, "initDB");
 function getTasks(key = "") {
   ctx.thisKeyName = key;
   if (key.length) {
@@ -126,7 +145,6 @@ function getTasks(key = "") {
     refreshDisplay();
   }
 }
-__name(getTasks, "getTasks");
 function buildTopics() {
   const data = getFromCache("topics");
   resetTopicSelect();
@@ -135,7 +153,6 @@ function buildTopics() {
     addOptionGroup(parsedTopics.group, parsedTopics.entries);
   }
 }
-__name(buildTopics, "buildTopics");
 function parseTopics(topics) {
   const topicObject = { group: "", entries: [] };
   const thisTopic = topics;
@@ -154,11 +171,9 @@ function parseTopics(topics) {
   }
   return topicObject;
 }
-__name(parseTopics, "parseTopics");
 function saveTasks(topicChanged) {
   setCache(ctx.thisKeyName, ctx.tasks, topicChanged);
 }
-__name(saveTasks, "saveTasks");
 function deleteCompleted() {
   const savedtasks = [];
   let numberDeleted = 0;
@@ -174,7 +189,6 @@ function deleteCompleted() {
   popupText.textContent = `Removed ${numberDeleted} tasks!`;
   popupDialog.showModal();
 }
-__name(deleteCompleted, "deleteCompleted");
 
 // src/templates.ts
 function taskTemplate(index, item) {
@@ -193,7 +207,6 @@ function taskTemplate(index, item) {
       </pre>
    </div> `;
 }
-__name(taskTemplate, "taskTemplate");
 
 // src/tasks.ts
 function addTask(newTask, topics = false) {
@@ -208,7 +221,6 @@ function addTask(newTask, topics = false) {
   taskInput.focus();
   refreshDisplay();
 }
-__name(addTask, "addTask");
 function refreshDisplay() {
   todoList.innerHTML = "";
   if (ctx.tasks && ctx.tasks.length > 0) {
@@ -250,7 +262,6 @@ function refreshDisplay() {
   }
   todoCount.textContent = "" + ctx.tasks.length;
 }
-__name(refreshDisplay, "refreshDisplay");
 
 // src/backup.ts
 function backupData() {
@@ -262,7 +273,6 @@ function backupData() {
   link.click();
   URL.revokeObjectURL(link.href);
 }
-__name(backupData, "backupData");
 function restoreData() {
   const fileload = document.getElementById("fileload");
   fileload.click();
@@ -275,7 +285,6 @@ function restoreData() {
     reader.readAsText(fileload.files[0]);
   });
 }
-__name(restoreData, "restoreData");
 
 // src/dom.ts
 var backupBtn = $("backupbtn");
@@ -339,7 +348,6 @@ async function initDom() {
   });
   refreshDisplay();
 }
-__name(initDom, "initDom");
 
 // src/main.ts
 await initDom();
