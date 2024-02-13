@@ -33,36 +33,6 @@ var ctx = {
 var $ = (id) => document.getElementById(id);
 var on = (elem, event, listener) => elem.addEventListener(event, listener);
 
-// src/WebSocketProxy.ts
-var KvSocket = new Proxy(self.WebSocket, {
-  construct: function(target, args) {
-    const instance = new target(...args);
-    const openHandler = (event) => {
-      console.log("Proxy.Open", event);
-    };
-    const messageHandler = (event) => {
-      console.log("Proxy.Message", event);
-    };
-    const closeHandler = (event) => {
-      console.log("Proxy.Close", event);
-      instance.removeEventListener("open", openHandler);
-      instance.removeEventListener("message", messageHandler);
-      instance.removeEventListener("close", closeHandler);
-    };
-    instance.addEventListener("open", openHandler);
-    instance.addEventListener("message", messageHandler);
-    instance.addEventListener("close", closeHandler);
-    const sendProxy = new Proxy(instance.send, {
-      apply: function(target2, thisArg, args2) {
-        console.log("Proxy.Send", args2);
-        target2.apply(thisArg, args2);
-      }
-    });
-    instance.send = sendProxy;
-    return instance;
-  }
-});
-
 // src/kvCache.ts
 var todoCache = /* @__PURE__ */ new Map();
 var callbacks = /* @__PURE__ */ new Map();
@@ -73,7 +43,7 @@ function initCache() {
   const socketURL = local ? `${wsProtocol}://localhost:8765` : `${wsProtocol}://${KV_URL}/`;
   if (DEV)
     console.log("socket url = ", socketURL);
-  socket = new KvSocket(socketURL);
+  socket = new WebSocket(socketURL);
   socket.onopen = async () => {
     return await hydrate();
   };

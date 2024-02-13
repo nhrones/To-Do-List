@@ -2,7 +2,6 @@
 import { DEV, KV_URL, ctx } from './context.ts'
 import { Callback, DbRpcPayload, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
-import { KvSocket} from'./WebSocketProxy.ts'
 export let todoCache: Map<string, TaskType[]> = new Map()
 
 const callbacks: Map<number, Callback> = new Map()
@@ -27,7 +26,7 @@ export function initCache() {
 
    if (DEV) console.log('socket url = ', socketURL)
    // create new WebSocket
-   socket = new KvSocket(socketURL) //HACK WebSocket(socketURL)
+   socket = new WebSocket(socketURL)
 
    // inform when opened
    socket.onopen = async () => {
