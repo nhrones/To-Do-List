@@ -2,6 +2,7 @@
 import { DEV, KV_URL, ctx } from './context.ts'
 import { Callback, DbRpcPayload, TaskType } from './types.ts'
 import { buildTopics } from './db.ts'
+
 export let todoCache: Map<string, TaskType[]> = new Map()
 
 const callbacks: Map<number, Callback> = new Map()
@@ -79,6 +80,7 @@ export function setCache(key: string, value: any, topicChanged = false) {
 async function hydrate() {
    // make a remote procedure call to get our record
    const result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
+   //TODO replace ^ with gitRestore
 
    // did we return data for the key in IDB?
    if (result === 'NOT FOUND') 
@@ -94,9 +96,10 @@ async function hydrate() {
  * off-thread, using our webworker.    
  * This is called for any mutation of the todoCache (set/delete)     
  */
-async function persist() {
+async function persist() { 
    // get the complete cache-Map
    const todoArray = Array.from(todoCache.entries())
+    //TODO replace with gitPersist
    // request remote proceedure to SET the 'DbKey' key with the cache-string
    await request({ procedure: 'SET', key: ctx.DbKey, value: todoArray })
 }
