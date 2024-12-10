@@ -16,9 +16,9 @@ export let socket: WebSocket
 export function initCache() {
 
    // get the appropriate WebSocket protocol
-   const wsProtocol = window.location.protocol === "http:" ? "ws" : "wss";
+   const wsProtocol = globalThis.location.protocol === "http:" ? "ws" : "wss";
    // flag localhost hostname
-   const local = (window.location.hostname === "localhost") 
+   const local = (globalThis.location.hostname === "localhost") 
    // build an appropriate socket url
    const socketURL = (local) 
       ? `${wsProtocol}://localhost:8765`
@@ -73,7 +73,7 @@ export const getFromCache = (key: string) => {
 export function setCache(key: string, value: any, topicChanged = false) {
    todoCache.set(key, value)
    persist()
-   if (topicChanged) window.location.reload();
+   if (topicChanged) globalThis.location.reload();
 }
 
 /** hydrate a dataset from a single raw record stored in IndexedDB */
