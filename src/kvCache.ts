@@ -21,7 +21,7 @@ export function initCache() {
    const local = (globalThis.location.hostname === "localhost") 
    // build an appropriate socket url
    const socketURL = (local) 
-      ? `${wsProtocol}://localhost:8765`
+      ? `${wsProtocol}://localhost:9099`
       : `${wsProtocol}://${KV_URL}/`;
 
 
@@ -34,10 +34,10 @@ export function initCache() {
       return await hydrate()
    }
  
-   // When we get a message from the worker we expect 
+   // When we get a message from the service we expect 
    // an object containing {msgID, error, and result}.
    //
-   // We then find a callback registered for this msgID, 
+   // We then find a callback registered for this txID, 
    // and call it with the error and result properities.
    // This will resolve or reject the promise that was
    // returned to the client when the callback was created.
@@ -76,13 +76,12 @@ export function setCache(key: string, value: any, topicChanged = false) {
    if (topicChanged) globalThis.location.reload();
 }
 
-/** hydrate a dataset from a single raw record stored in IndexedDB */
+/** hydrate a dataset from a single raw record stored in a KvDB */
 async function hydrate() {
    // make a remote procedure call to get our record
    const result = await request({ procedure: 'GET', key: ctx.DbKey, value: '' })
-   //TODO replace ^ with gitRestore
 
-   // did we return data for the key in IDB?
+   // did we return data for the key in KvDB?
    if (result === 'NOT FOUND') 
       console.log(`kvCache.hydrate -- result = 'NOT FOUND'!`);
 
@@ -92,32 +91,28 @@ async function hydrate() {
 }
 
 /** 
- * Persist the current dbMap to an IndexedDB 
- * off-thread, using our webworker.    
+ * Persist the current dbMap to the remote KvDB    
  * This is called for any mutation of the todoCache (set/delete)     
  */
 async function persist() { 
-   // get the complete cache-Map
+   // get the complete cache-Map array
    const todoArray = Array.from(todoCache.entries())
-    //TODO replace with gitPersist
-   // request remote proceedure to SET the 'DbKey' key with the cache-string
+   // request remote proceedure to SET the 'DbKey' key with this string
    await request({ procedure: 'SET', key: ctx.DbKey, value: todoArray })
 }
 
 /** 
- * Transaction request to the IDB worker     
+ * Transaction request to our KV-RPC-service    
  * 
  * We give each request a unique txID.    
  * We then create/save a promise callback for the txID.    
  * Finally, we return a promise for this callback.   
  * Our dbWorker will signal when the rpc has been fulfilled.   
  * At that time we lookup our callback, and fulfill the promise.    
- * This is how we implement async transactions with    
- * our IndexedDB. Since most of the heavy lifting is    
- * on the worker, we never block the UI 
+ * This is how we implement async-transactions with    
+ * our RPC-service. We never need toblock the UI.
  */
 function request(newRequest: DbRpcPayload): Promise<any> {
-
    const txID = ctx.nextTxId++
    return new Promise((resolve, reject) => {
       if (socket.readyState === WebSocket.OPEN) { 

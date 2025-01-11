@@ -7,7 +7,7 @@ import { DEV, ctx } from './context.ts'
 
 /**
  * init Data
- * Hydrates cache data from IDB
+ * Hydrates cache data from kvRPC
  */
 export async function initDB() {
    // hydrate from db
