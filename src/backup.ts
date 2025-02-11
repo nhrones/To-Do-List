@@ -26,7 +26,7 @@ export function restoreData() {
       const reader = new FileReader();
       reader.onload = function () {
          restoreCache(reader.result as string)
-         window.location.reload()
+         globalThis.location.reload()
       }
       reader.readAsText(fileload.files![0]);
    })
